@@ -39,7 +39,8 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .brand .tag{color:var(--mute);font-size:13px}
 .quote{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .price{font:700 clamp(26px,4vw,38px)/1 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.pchg{font:500 13px/1.2 var(--f-mono)}
+.tvq{width:min(330px,100%);min-height:82px;overflow:hidden}
+.tvq iframe{display:block}
 .meta{display:flex;flex-direction:column;gap:4px;align-items:flex-end;font-size:12px;color:var(--mute)}
 .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--mute);background:var(--panel)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
@@ -153,6 +154,11 @@ details[open].panel > summary::after{content:"−"}
 .checks{display:flex;flex-direction:column;gap:8px;font-size:13px}
 .checks label{display:flex;gap:8px;align-items:center}
 .hint{font-size:12px;color:var(--mute)}
+.pbrow{flex-wrap:wrap}
+.pbv{display:flex;gap:6px 8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.cks{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.ck{font:500 11px/1.4 var(--f-mono);color:var(--mute);white-space:nowrap}
+.ck.ok{color:var(--text)}
 .oanda-box{grid-column:1/-1;display:grid;gap:16px;grid-template-columns:1fr;padding-bottom:16px;border-bottom:1px solid var(--line)}
 @media(min-width:800px){.oanda-box{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .field input[type=password]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
@@ -177,11 +183,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <span class="tag">เทรดง่ายๆ เด็กอนุบาลก็เทรดได้ · วิเคราะห์ TF15 / 1H / 4H อัตโนมัติ</span>
   </div>
   <div class="quote">
-    <div>
-      <div class="lbl" id="srcLbl">OANDA XAU/USD</div>
-      <div class="price" id="price">—</div>
-      <div class="pchg" id="pchg">&nbsp;</div>
-    </div>
+    <div class="tvq" id="tvQuote" aria-label="ราคา OANDA:XAUUSD จาก TradingView"></div>
     <div class="meta">
       <span class="pill"><span class="dot" id="liveDot"></span><span id="status">กำลังโหลดข้อมูล…</span></span>
       <div class="hbtns">
@@ -196,16 +198,16 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <section class="top">
   <article class="panel verdict" id="verdict">
-    <div class="ph"><h2>สรุปสัญญาณรวม 3 TF</h2><span class="lbl" id="vTime">—</span></div>
+    <div class="ph"><h2>สรุป Pullback 3 TF</h2><span class="lbl" id="vTime">—</span></div>
     <div class="vbody">
       <div class="vword v-wait" id="vWord"><b>—</b><span class="sub">กำลังคำนวณ</span></div>
       <div>
         <div class="meter"><i id="vNeedle" style="left:50%"></i></div>
-        <div class="meter-scale"><span>SELL แรง</span><span>รอ</span><span>BUY แรง</span></div>
+        <div class="meter-scale"><span>P-SELL</span><span>รอ</span><span>P-BUY</span></div>
       </div>
       <div id="vPlan"></div>
       <div>
-        <div class="lbl" style="margin-bottom:8px">เหตุผล</div>
+        <div class="lbl" style="margin-bottom:8px">สัญญาณสด + บริบท</div>
         <ul class="reasons" id="vReasons"></ul>
       </div>
       <div>
@@ -251,13 +253,10 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <div id="chartMain"></div>
     <div id="chartStoch"></div>
     <div class="legend">
-      <span><i style="background:#2fbf71"></i>BUY / SELL (MS Confirmed)</span>
-      <span><i style="background:#2fbf7166"></i>~BUY / ~SELL (MS ยังไม่ยืนยัน)</span>
-      <span><i style="background:#e3b04b"></i>REJ (Hammer / Star)</span>
-      <span><i style="background:#26c6da"></i>P-BUY / <i style="background:#ff7043"></i>P-SELL</span>
-      <span><i style="background:#4aa3ff"></i>Swing Scalp</span>
-      <span><i style="background:#ab47bc"></i>ททกต (1H)</span>
+      <span><i style="background:#26c6da"></i>P-BUY (Pullback Reversal)</span>
+      <span><i style="background:#ff7043"></i>P-SELL (Pullback Reversal)</span>
       <span><i style="background:#e3b04b80"></i>EMA50</span>
+      <span>เงื่อนไข: Stoch เคยแตะ 35/65 ใน 4 แท่ง + K ตัด D + ยืดจาก EMA50 ≥ 1.5 ATR + Hammer/Star ใน 4 แท่ง + คะแนน ≥ 50%</span>
     </div>
   </div>
 </section>
@@ -282,12 +281,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   <div class="set">
     <div class="field oanda-box">
       <div class="field">
-        <label for="optSrc">แหล่งข้อมูลราคา</label>
-        <select id="optSrc">
-          <option value="oanda">OANDA XAU/USD – v20 API (ตรงกับ OANDA:XAUUSD)</option>
-          <option value="binance">PAXG/USDT – Binance (สำรอง ไม่ต้องใช้ key)</option>
-          <option value="twelve">XAU/USD Spot – Twelve Data (ต้องมี API key)</option>
-        </select>
+        <span class="hint">สัญญาณคำนวณจากแท่งเทียน OANDA XAU/USD ชุดเดียวกับกราฟ OANDA:XAUUSD บน TradingView</span>
         <label for="optOaEnv">บัญชี OANDA</label>
         <select id="optOaEnv">
           <option value="practice">Demo (fxpractice)</option>
@@ -316,12 +310,6 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
           <li>ถ้าวิธี A ขึ้น “ต่อ OANDA ไม่ได้” ให้ใช้วิธี B ด้วยไฟล์ <b>OANDA_Proxy.gs</b></li>
         </ol>
       </div>
-    </div>
-    <div class="field">
-      <label for="optKey">Twelve Data API key</label>
-      <input type="text" id="optKey" placeholder="วาง API key ที่นี่" autocomplete="off">
-      <span class="hint">สมัครฟรีที่ <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a> (800 req/วัน) — แอพดึงเฉพาะตอนแท่งปิด จึงใช้ไม่เกินโควตา</span>
-      <label class="checks"><span><input type="checkbox" id="optWeekend" checked> ตัดแท่งช่วงตลาดทองปิด (ใช้กับ PAXG)</span></label>
     </div>
     <div class="field">
       <label>Engine ที่ใช้ (แสดงบนกราฟ + นับในสรุป)</label>
@@ -613,7 +601,10 @@ function runKG(allBars, tfId){
       const wpv = showBuyProb ? wpB : showSellProb ? wpS : inOS ? wpB : inOB ? wpS : 0;
       const wpd = showBuyProb ? "BUY" : showSellProb ? "SELL" : inOS ? "BUY" : inOB ? "SELL" : "-";
       snap = { zone: obz ? "OVERBOUGHT" : osz ? "OVERSOLD" : "NEUTRAL", msTrend, bs, ss, buySig, sellSig,
-        wp: wpv, wpDir: wpd, gateBuy, gateSell, k, d: D[i], rsi: r, close: c, t: bars[i].t, atr: a };
+        wp: wpv, wpDir: wpd, gateBuy, gateSell, k, d: D[i], rsi: r, close: c, t: bars[i].t, atr: a, ext,
+        // สถานะเงื่อนไข Pullback Engine ณ แท่งล่าสุด
+        pbB: { zone: recPbOS, ext: overB, rej: rejBRec, cross: xUp(i), score: pbScB, potential: Math.min(pbScB + (xUp(i) ? 0 : 15), 100) },
+        pbS: { zone: recPbOB, ext: overS, rej: rejSRec, cross: xDn(i), score: pbScS, potential: Math.min(pbScS + (xDn(i) ? 0 : 15), 100) } };
     }
   }
   return { tf: tfId, bars, n, K, D, ema50, rsi, events, last: snap, stuck: n ? stuckArr[n-1] : 0 };
@@ -635,53 +626,17 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem("kgxau." + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem("kgxau." + k, JSON.stringify(v)); } catch(e){} }
 };
-const S = Object.assign({ src:"oanda", key:"", weekend:true, rr:2, reqMS:true, sound:true,
+const S = Object.assign({ rr:2, reqMS:true, sound:true,
   oaEnv:"practice", oaPrice:"B", oaToken:"", oaProxy:"",
   eng:{ main:true, weak:true, rej:true, pb:true, swing:true, crev:true } }, store.get("settings", {}));
 S.eng = Object.assign({ main:true, weak:true, rej:true, pb:true, swing:true, crev:true }, S.eng || {});
-if (!S.v2){ S.src = "oanda"; S.v2 = true; }   // อัปเกรดจากเวอร์ชันแรก: ใช้ OANDA เป็นค่าเริ่มต้น
+// ใช้เฉพาะ Pullback Reversal (P-BUY / P-SELL) เป็นสัญญาณเทรด
+if (!S.pbOnly){ S.eng = { main:false, weak:false, rej:false, pb:true, swing:false, crev:false }; S.pbOnly = true; }
+delete S.src; delete S.key; delete S.weekend; delete S.v2;
 
 const DATA = {}, RES = {}, LASTFETCH = {};
-let demo = false, chartTf = "15m", view = "tv";
+let chartTf = "15m", view = "tv";
 
-// ตลาดทองปิด: ศุกร์ 21:00 UTC – อาทิตย์ 22:00 UTC
-function inGoldClosed(tSec){
-  const d = new Date(tSec * 1000), wd = d.getUTCDay(), hr = d.getUTCHours();
-  if (wd === 6) return true;
-  if (wd === 5 && hr >= 21) return true;
-  if (wd === 0 && hr < 22) return true;
-  return false;
-}
-
-async function fetchBinance(tf){
-  const path = `/api/v3/klines?symbol=PAXGUSDT&interval=${tf.bin}&limit=600`;
-  let err;
-  for (const host of ["https://api.binance.com", "https://data-api.binance.vision", "https://api1.binance.com"]){
-    try {
-      const r = await fetch(host + path, { cache:"no-store" });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const j = await r.json(), now = Date.now();
-      let bars = j.map(k => ({ t: Math.floor(k[0] / 1000), o:+k[1], h:+k[2], l:+k[3], c:+k[4], closed: k[6] < now }));
-      if (S.weekend && tf.id !== "1d") bars = bars.filter(b => !inGoldClosed(b.t));
-      if (S.weekend && tf.id === "1d") bars = bars.filter(b => { const wd = new Date(b.t * 1000).getUTCDay(); return wd !== 6 && wd !== 0; });
-      return bars;
-    } catch(e){ err = e; }
-  }
-  throw err;
-}
-async function fetchTwelve(tf){
-  if (!S.key) throw new Error("ยังไม่ได้ใส่ Twelve Data API key");
-  const u = `https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=${tf.td}&outputsize=600&timezone=UTC&apikey=${encodeURIComponent(S.key)}`;
-  const r = await fetch(u, { cache:"no-store" });
-  const j = await r.json();
-  if (j.status !== "ok") throw new Error(j.message || "Twelve Data error");
-  const now = Date.now() / 1000;
-  return j.values.map(v => {
-    const s = v.datetime.length === 10 ? v.datetime + "T00:00:00" : v.datetime.replace(" ", "T");
-    const t = Math.floor(Date.parse(s + "Z") / 1000);
-    return { t, o:+v.open, h:+v.high, l:+v.low, c:+v.close, closed: t + tf.sec <= now };
-  }).sort((a, b) => a.t - b.t);
-}
 // OANDA v20: /v3/instruments/XAU_USD/candles — แท่งชุดเดียวกับ OANDA:XAUUSD (Daily/H4 align 17:00 New York)
 const OA_GRAN = { "15m":"M15", "1h":"H1", "4h":"H4", "1d":"D" };
 const oandaReady = () => !!(S.oaProxy || S.oaToken);
@@ -712,27 +667,10 @@ async function fetchOanda(tf){
     return { t, o:+q.o, h:+q.h, l:+q.l, c:+q.c, closed: !!c.complete };
   });
 }
-function demoBars(tf){
-  const out = [], n = 600, now = Math.floor(Date.now() / 1000), start = Math.floor(now / tf.sec) * tf.sec - (n - 1) * tf.sec;
-  let seed = tf.sec % 9973 + 7, p = 4000;
-  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  const vol = 0.0011 * Math.sqrt(tf.sec / 900) * 4000;
-  for (let i = 0; i < n; i++){
-    const drift = Math.sin(i / 37) * vol * 0.35;
-    const o = p, c = o + drift + (rnd() - 0.5) * vol * 2;
-    const h = Math.max(o, c) + rnd() * vol * 0.8, l = Math.min(o, c) - rnd() * vol * 0.8;
-    out.push({ t: start + i * tf.sec, o, h, l, c, closed: i < n - 1 }); p = c;
-  }
-  return out;
-}
 function needFetch(tf){
   if (!DATA[tf.id]) return true;
   const age = Date.now() - (LASTFETCH[tf.id] || 0);
-  if (effSrc() === "oanda") return age > ({ "15m":20000, "1h":60000, "4h":120000, "1d":600000 })[tf.id];
-  if (effSrc() === "binance") return age > (tf.id === "1d" ? 300000 : 30000);
-  const bars = DATA[tf.id], lastB = bars[bars.length - 1];
-  const nextClose = (lastB.t + tf.sec) * 1000;
-  return Date.now() >= nextClose + 15000 && age > 120000;
+  return age > ({ "15m":20000, "1h":60000, "4h":120000, "1d":600000 })[tf.id];
 }
 
 // ---------------- helpers ----------------
@@ -752,50 +690,59 @@ const enabledEv = e => S.eng[e.group];
 
 // ---------------- verdict ----------------
 function computeVerdict(){
-  let score = 0; const reasons = [], cands = [];
+  // สรุปจากสัญญาณ Pullback (P-BUY / P-SELL) ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF และคะแนน Win %
+  let buy = 0, sell = 0; const reasons = [], cands = [];
   for (const id of ["4h", "1h", "15m"]){
     const r = RES[id], tf = TFMAP[id]; if (!r || !r.last) continue;
     const lastI = r.n - 1;
     const fresh = r.events.filter(e => enabledEv(e) && lastI - e.i < tf.fresh);
     for (const side of ["BUY", "SELL"]){
-      const best = fresh.filter(e => e.side === side).sort((a, b) => ENG[b.group].w - ENG[a.group].w || b.i - a.i)[0];
-      if (best){
-        const s = ENG[best.group].w * tf.mult;
-        score += side === "BUY" ? s : -s;
-        const ago = lastI - best.i;
-        reasons.push({ tf: tf.label, side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · Win ${best.wp}%` });
-        cands.push({ e: best, s });
-      }
+      const best = fresh.filter(e => e.side === side).sort((a, b) => b.wp - a.wp || b.i - a.i)[0];
+      if (!best) continue;
+      const s = tf.mult * (0.5 + best.wp / 100);
+      if (side === "BUY") buy += s; else sell += s;
+      const ago = lastI - best.i;
+      reasons.push({ tf: tf.label, side, chip: side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${best.wp}%` });
+      cands.push({ e: best, s });
     }
     const L = r.last;
-    if (L.msTrend === "BULLISH"){ score += 0.75 * tf.mult; reasons.push({ tf: tf.label, side:"BUY", txt:"MS Trend BULLISH" }); }
-    if (L.msTrend === "BEARISH"){ score -= 0.75 * tf.mult; reasons.push({ tf: tf.label, side:"SELL", txt:"MS Trend BEARISH" }); }
-    if (id === "4h" && L.zone === "OVERBOUGHT"){ score -= 0.5; reasons.push({ tf:"4H", side:"SELL", txt:"Stoch Overbought ระวังไล่ BUY" }); }
-    if (id === "4h" && L.zone === "OVERSOLD"){ score += 0.5; reasons.push({ tf:"4H", side:"BUY", txt:"Stoch Oversold ระวังไล่ SELL" }); }
+    reasons.push({ tf: tf.label, side: "", chip: "INFO", txt: `MS ${L.msTrend} · ยืดจาก EMA50 ${L.ext >= 0 ? "+" : ""}${L.ext.toFixed(1)} ATR` });
   }
-  const word = score >= 2.5 ? "BUY" : score <= -2.5 ? "SELL" : "WAIT";
+  const score = buy - sell;
+  let word = "WAIT";
+  if (buy > 0 && sell === 0) word = "BUY";
+  else if (sell > 0 && buy === 0) word = "SELL";
+  else if (buy > 0 && sell > 0 && Math.abs(score) >= 1) word = score > 0 ? "BUY" : "SELL";
+  const conflict = buy > 0 && sell > 0 && word === "WAIT";
   const plan = word === "WAIT" ? null : cands.filter(c => c.e.side === word).sort((a, b) => b.s - a.s)[0]?.e || null;
-  return { score, word, reasons, plan };
+  return { score, word, reasons, plan, conflict };
 }
 
 // ---------------- render ----------------
+function pbRow(side, o){
+  const items = [[side === "BUY" ? "Stoch≤35" : "Stoch≥65", o.zone], ["ATR×1.5", o.ext], [side === "BUY" ? "Hammer" : "Star", o.rej]];
+  const met = items.filter(x => x[1]).length;
+  const ticks = items.map(([n, ok]) => `<span class="ck${ok ? " ok" : ""}">${ok ? "✓" : "✗"} ${n}</span>`).join("");
+  const st = met === 3 ? `<span class="chip ${side === "BUY" ? "buy" : "sell"}">รอ K×D · ${Math.round(o.potential)}%</span>` : `<span class="chip neu">${met}/3</span>`;
+  return `<div class="row pbrow"><span class="k">P-${side}</span><span class="v pbv"><span class="cks">${ticks}</span>${st}</span></div>`;
+}
+function pbCount(o){ return [o.zone, o.ext, o.rej].filter(Boolean).length; }
+
 function renderCards(){
   for (const id of ["15m", "1h", "4h"]){
     const el = $("card-" + id), r = RES[id], tf = TFMAP[id];
-    if (!r || !r.last){ el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span></div><div class="last empty">รอข้อมูลราคา OANDA</div>`; continue; }
+    if (!r || !r.last){ el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span></div><div class="last empty">รอเชื่อมราคา OANDA</div>`; continue; }
     const L = r.last;
-    const [bt, bc] = stageTxt(L.bs, "BUY", L.buySig), [st, sc] = stageTxt(L.ss, "SELL", L.sellSig);
-    const zc = L.zone === "OVERBOUGHT" ? "sell" : L.zone === "OVERSOLD" ? "buy" : "neu";
+    const kz = L.k >= P.pbOB ? ["sell", `${f2(L.k)} · โซน P-SELL`] : L.k <= P.pbOS ? ["buy", `${f2(L.k)} · โซน P-BUY`] : ["neu", f2(L.k)];
+    const ec = L.ext >= P.pbAtr ? "sell" : -L.ext >= P.pbAtr ? "buy" : "neu";
     const mc = L.msTrend === "BULLISH" ? "buy" : L.msTrend === "BEARISH" ? "sell" : "neu";
-    const wpCol = L.wp >= 70 ? "var(--buy)" : L.wp >= 50 ? "var(--gold)" : "var(--sell)";
-    const gate = L.gateBuy ? `<span class="chip buy">เปิด BUY</span>` : L.gateSell ? `<span class="chip sell">เปิด SELL</span>` : `<span class="chip neu">ปิด</span>`;
     const evs = r.events.filter(enabledEv);
     const le = evs[evs.length - 1];
-    let lastHtml = `<div class="last empty">ยังไม่มีสัญญาณในข้อมูลช่วงนี้</div>`;
+    let lastHtml = `<div class="last empty">ยังไม่มี P-BUY / P-SELL ในข้อมูลช่วงนี้</div>`;
     if (le){
       const ago = r.n - 1 - le.i, fresh = ago < tf.fresh;
       lastHtml = `<div class="last${fresh ? " fresh" : ""}">
-        <div class="top2"><span class="chip ${sideCls(le.side)}">${esc(le.label)}</span>
+        <div class="top2"><span class="chip ${sideCls(le.side)}">${esc(le.label)} ${le.wp}%</span>
           <span class="lbl">${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${fmtT(le.t)}</span></div>
         <div class="lv"><div><span class="lbl">Entry</span><b>${f2(le.entry)}</b></div>
           <div><span class="lbl">SL</span><b style="color:var(--sell)">${f2(le.sl)}</b></div>
@@ -803,23 +750,27 @@ function renderCards(){
     }
     el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span><span class="when">ปิดแท่ง ${fmtT(L.t + tf.sec)}</span></div>
       <div class="rows">
-        <div class="row"><span class="k">Zone</span><span class="v"><span class="chip ${zc}">${L.zone}</span></span></div>
+        <div class="row"><span class="k">Stoch K</span><span class="v"><span class="chip ${kz[0]}">${kz[1]}</span></span></div>
+        <div class="row"><span class="k">ยืดจาก EMA50</span><span class="v"><span class="chip ${ec}">${L.ext >= 0 ? "+" : ""}${L.ext.toFixed(2)} ATR</span></span></div>
+        ${pbRow("BUY", L.pbB)}
+        ${pbRow("SELL", L.pbS)}
         <div class="row"><span class="k">MS Trend</span><span class="v"><span class="chip ${mc}">${L.msTrend}</span></span></div>
-        <div class="row"><span class="k">BUY</span><span class="v"><span class="chip ${bc}">${bt}</span></span></div>
-        <div class="row"><span class="k">SELL</span><span class="v"><span class="chip ${sc}">${st}</span></span></div>
-        <div class="row"><span class="k">Win Prob</span><span class="v wp"><span class="num" style="color:${wpCol}">${Math.round(L.wp)}% ${L.wpDir}</span><span class="wpbar"><i style="width:${Math.round(L.wp)}%;background:${wpCol}"></i></span></span></div>
-        <div class="row"><span class="k">MS Gate</span><span class="v">${gate}</span></div>
-        <div class="row"><span class="k">Stoch K / D · RSI</span><span class="v num">${f2(L.k)} / ${f2(L.d)} · ${f2(L.rsi)}</span></div>
+        <div class="row"><span class="k">RSI</span><span class="v num">${f2(L.rsi)}</span></div>
       </div>${lastHtml}`;
   }
 }
 
 function renderVerdict(){
-  const v = computeVerdict();
   const box = $("vWord");
+  if (!RES["15m"] && !RES["1h"] && !RES["4h"]){
+    box.className = "vword v-wait"; box.innerHTML = `<b>—</b><span class="sub">รอเชื่อมราคา OANDA</span>`;
+    $("vNeedle").style.left = "50%"; $("vPlan").innerHTML = ""; $("vReasons").innerHTML = ""; $("mtf").innerHTML = ""; $("vTime").textContent = "—";
+    return;
+  }
+  const v = computeVerdict();
   box.className = "vword " + (v.word === "BUY" ? "v-buy" : v.word === "SELL" ? "v-sell" : "v-wait");
-  box.innerHTML = `<b>${v.word === "WAIT" ? "รอจังหวะ" : v.word}</b><span class="sub num">คะแนน ${v.score >= 0 ? "+" : ""}${v.score.toFixed(1)}</span>`;
-  $("vNeedle").style.left = (50 + Math.max(-1, Math.min(1, v.score / 10)) * 48) + "%";
+  box.innerHTML = `<b>${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}</b><span class="sub num">${v.conflict ? "P-BUY / P-SELL ขัดกัน" : "คะแนน " + (v.score >= 0 ? "+" : "") + v.score.toFixed(1)}</span>`;
+  $("vNeedle").style.left = (50 + Math.max(-1, Math.min(1, v.score / 4)) * 48) + "%";
   if (v.plan){
     const e = v.plan;
     $("vPlan").innerHTML = `<div class="plan"><div class="h"><span><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span> <span class="lbl">${TFMAP[e.tf].label} · ${fmtT(e.t)}</span></span><span class="lbl">แผนจากสัญญาณที่หนักที่สุด</span></div>
@@ -828,10 +779,10 @@ function renderVerdict(){
       <div class="c"><span class="lbl">TP1 1R</span><b style="color:var(--buy)">${f2(e.tp1)}</b></div>
       <div class="c"><span class="lbl">TP2 ${P.rr}R</span><b style="color:var(--buy)">${f2(e.tp2)}</b></div></div>`;
   } else {
-    const pend = ["4h", "1h", "15m"].map(id => RES[id] && RES[id].last ? `${TFMAP[id].label}: BUY ${stageTxt(RES[id].last.bs, "BUY")[0]} · SELL ${stageTxt(RES[id].last.ss, "SELL")[0]}` : "").filter(Boolean);
-    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มีสัญญาณยืนยันพร้อมกันหลาย TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
+    const pend = ["4h", "1h", "15m"].map(id => RES[id] && RES[id].last ? `${TFMAP[id].label}: P-BUY ${pbCount(RES[id].last.pbB)}/3 · P-SELL ${pbCount(RES[id].last.pbS)}/3 เงื่อนไข` : "").filter(Boolean);
+    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มี P-BUY / P-SELL สดใน 3 TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
   }
-  $("vReasons").innerHTML = v.reasons.length ? v.reasons.map(r => `<li><span class="tfk">${r.tf}</span><span class="chip ${sideCls(r.side)}">${r.side}</span><span>${esc(r.txt)}</span></li>`).join("") : `<li style="color:var(--mute)">ไม่มีสัญญาณสดใน 3 TF</li>`;
+  $("vReasons").innerHTML = v.reasons.length ? v.reasons.map(r => `<li><span class="tfk">${r.tf}</span><span class="chip ${sideCls(r.side)}">${r.chip}</span><span>${esc(r.txt)}</span></li>`).join("") : `<li style="color:var(--mute)">—</li>`;
   $("vTime").textContent = "อัปเดต " + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date());
   const sym = s => s === 1 ? ["▼", "dn"] : s === 2 ? ["▲", "up"] : ["–", ""];
   $("mtf").innerHTML = ["15m", "1h", "4h", "1d"].map(id => { const r = RES[id]; const [s, c] = sym(r ? r.stuck : 0); return `<span class="${c}">${TFMAP[id].label} ${s}</span>`; }).join("");
@@ -847,21 +798,17 @@ function renderLog(){
     : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณ</td></tr>`;
 }
 
-function renderPrice(){
-  const b = DATA["15m"]; if (!b || !b.length) return;
-  const p = b[b.length - 1].c;
-  $("price").textContent = f2(p);
-  const d = DATA["1d"];
-  if (d && d.length > 1){
-    const prevClose = d.filter(x => x.closed).slice(-1)[0]?.c;
-    if (prevClose){
-      const ch = p - prevClose, pc = ch / prevClose * 100;
-      $("pchg").innerHTML = `<span style="color:${ch >= 0 ? "var(--buy)" : "var(--sell)"}">${ch >= 0 ? "+" : ""}${f2(ch)} (${pc >= 0 ? "+" : ""}${pc.toFixed(2)}%)</span> <span style="color:var(--mute)">จากปิดวันก่อน</span>`;
-    }
-  }
-  $("srcLbl").textContent = demo ? "ข้อมูลจำลอง · โหมดสาธิต"
-    : effSrc() === "oanda" ? `OANDA XAU/USD · ${{ B:"Bid", M:"Mid", A:"Ask" }[S.oaPrice]} · ${S.oaEnv === "live" ? "Live" : "Demo"}`
-    : effSrc() === "binance" ? "สัญญาณจาก PAXG/USDT (ใกล้เคียง XAUUSD)" : "XAU/USD Spot · Twelve Data";
+function renderPrice(){}
+// ราคาหัวแอพ: วิดเจ็ต Single Quote ของ TradingView สัญลักษณ์ OANDA:XAUUSD (ตัวเลขเดียวกับกราฟ)
+function mountQuote(){
+  const box = $("tvQuote");
+  box.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+  const s = document.createElement("script");
+  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js";
+  s.async = true;
+  s.textContent = JSON.stringify({ symbol:"OANDA:XAUUSD", width:"100%", isTransparent:true, colorTheme:"dark", locale:"th_TH" });
+  s.onerror = () => { box.innerHTML = '<div class="lbl">OANDA:XAUUSD</div><div class="hint">โหลดราคาจาก TradingView ไม่สำเร็จ</div>'; };
+  box.firstChild.appendChild(s);
 }
 
 // ---------------- chart (TradingView Lightweight Charts) ----------------
@@ -907,7 +854,7 @@ function renderChart(){
   sD.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(r.D[i]) ? { time:b.t + TZ, value:r.D[i] } : { time:b.t + TZ }; }));
   const evs = r.events.filter(enabledEv);
   const markers = evs.map(e => { const [color, shape] = MK[e.group][e.side];
-    const txt = e.group === "main" || e.group === "weak" ? `${e.label} ${e.wp}%` : e.label;
+    const txt = ["main", "weak", "pb"].includes(e.group) ? `${e.label} ${e.wp}%` : e.label;
     return { time: e.t + TZ, position: e.side === "BUY" ? "belowBar" : "aboveBar", color, shape, text: txt }; })
     .sort((a, b) => a.time - b.time);
   sCandle.setMarkers(markers);
@@ -967,8 +914,8 @@ function checkNewSignals(first){
     const r = RES[id]; if (!r || !r.n) continue;
     const lastT = r.bars[r.n - 1].t;
     const news = r.events.filter(e => enabledEv(e) && e.t === lastT);
-    const key = effSrc() + ":" + id;
-    if (!first && !demo && news.length && seen[key] !== lastT){
+    const key = "oanda:" + id;
+    if (!first && news.length && seen[key] !== lastT){
       for (const e of news){
         const msg = `KG ${TFMAP[id].label} · ${e.label} @ ${f2(e.entry)} | SL ${f2(e.sl)} | TP ${f2(e.tp2)}`;
         toast(msg);
@@ -982,79 +929,69 @@ function checkNewSignals(first){
 }
 
 // ---------------- main loop ----------------
-let firstRun = true, busy = false, lastSrc = null;
-// OANDA ที่ยังไม่ได้ใส่ token → ใช้ PAXG คำนวณสัญญาณไปก่อน
-const effSrc = () => S.src === "oanda" && !oandaReady() ? "binance" : S.src;
+let firstRun = true, busy = false;
 function compute(){
   P.rr = +S.rr || 2; P.requireMS = !!S.reqMS;
   for (const tf of TFS) if (DATA[tf.id]) RES[tf.id] = runKG(DATA[tf.id], tf.id);
 }
-function renderAll(){ renderPrice(); renderCards(); renderVerdict(); renderLog(); renderChart(); }
+function renderAll(){ renderCards(); renderVerdict(); renderLog(); renderChart(); }
 function setStatus(txt, state){ $("status").textContent = txt; $("liveDot").className = "dot " + (state || ""); }
 function banner(html, cls){ $("bannerBox").innerHTML = html ? `<div class="banner ${cls || ""}">${html}</div>` : ""; }
+function openSetup(){ $("settings").open = true; $("settings").scrollIntoView({ behavior:"smooth" }); setTimeout(() => $("optOaToken").focus(), 300); }
+function clearResults(){ for (const k in DATA) delete DATA[k]; for (const k in RES) delete RES[k]; fitted = {}; }
 
 async function refresh(force){
-  if (busy || demo) return;
-  const src = effSrc();
-  if (src !== lastSrc){ for (const k in DATA) delete DATA[k]; fitted = {}; lastSrc = src; force = true; }
+  if (busy) return;
+  if (!oandaReady()){
+    clearResults();
+    setStatus("ยังไม่เชื่อม OANDA", "");
+    banner(`<span><b>เชื่อมราคา OANDA เพื่อเริ่มคำนวณสัญญาณ</b> — แอพจะคำนวณ KG v7.8 จากแท่งเทียน OANDA XAU/USD ชุดเดียวกับกราฟ OANDA:XAUUSD เท่านั้น ใส่ OANDA API Token (บัญชี Demo ฟรี) หรือ Apps Script URL ในหน้าตั้งค่า</span>
+      <button class="btn gold" type="button" id="btnSetup">ตั้งค่า OANDA</button>`);
+    $("btnSetup").onclick = openSetup;
+    renderCards(); renderVerdict(); renderLog();
+    return;
+  }
   busy = true;
   const todo = TFS.filter(tf => force || needFetch(tf));
   const errs = [];
   await Promise.all(todo.map(async tf => {
-    try {
-      DATA[tf.id] = src === "oanda" ? await fetchOanda(tf) : src === "twelve" ? await fetchTwelve(tf) : await fetchBinance(tf);
-      LASTFETCH[tf.id] = Date.now();
-    }
+    try { DATA[tf.id] = await fetchOanda(tf); LASTFETCH[tf.id] = Date.now(); }
     catch(e){ errs.push(tf.label + ": " + (e.message || e)); }
   }));
   busy = false;
   if (!DATA["15m"]){
-    setStatus("โหลดข้อมูลไม่ได้", "err");
-    banner(`<span>ดึงข้อมูลราคาไม่สำเร็จ (${esc(errs[0] || "network")}). ${effSrc() === "oanda" ? "ตรวจ token / บัญชี Demo-Live หรือใช้ Apps Script URL ในตั้งค่า" : S.src === "twelve" ? "ตรวจ API key ในตั้งค่า" : "ลองเปลี่ยนเครือข่าย หรือเปลี่ยนแหล่งข้อมูลในตั้งค่า"}</span><button class="btn" type="button" id="btnDemo">ดูโหมดสาธิต (ข้อมูลจำลอง)</button>`, "err");
-    $("btnDemo").onclick = startDemo;
+    setStatus("ต่อ OANDA ไม่สำเร็จ", "err");
+    banner(`<span>ดึงราคา OANDA ไม่สำเร็จ: ${esc(errs[0] || "network")} — ตรวจ token และบัญชี Demo/Live หรือใช้ Apps Script URL (วิธี B)</span>
+      <button class="btn" type="button" id="btnSetup">เปิดตั้งค่า</button>`, "err");
+    $("btnSetup").onclick = openSetup;
+    renderCards(); renderVerdict(); renderLog();
     return;
   }
-  if (errs.length) banner(`<span>บาง TF โหลดไม่สำเร็จ: ${esc(errs.join(" · "))}</span>`);
-  else if (S.src === "oanda" && src !== "oanda"){
-    banner(`<span>กราฟเป็น <b>OANDA:XAUUSD</b> จาก TradingView · สัญญาณ KG ตอนนี้คำนวณจาก PAXG ซึ่งวิ่งตามทองใกล้เคียงแต่ราคาต่างกันเล็กน้อย — ใส่ OANDA token เพื่อให้สัญญาณใช้ราคาเดียวกับกราฟ 100%</span>
-      <button class="btn" type="button" id="btnSetup">ใส่ OANDA token</button>`);
-    $("btnSetup").onclick = () => { $("settings").open = true; $("optOaToken").focus(); $("settings").scrollIntoView({ behavior:"smooth" }); };
-  } else banner("");
+  banner(errs.length ? `<span>บาง TF โหลดไม่สำเร็จ: ${esc(errs.join(" · "))}</span>` : "");
   compute(); renderAll(); checkNewSignals(firstRun); firstRun = false;
-  setStatus("สด · " + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date()), "live");
-}
-function startDemo(){
-  demo = true;
-  for (const tf of TFS) DATA[tf.id] = demoBars(tf);
-  banner(`<span><b>โหมดสาธิต</b> — ใช้ข้อมูลจำลองเพื่อดูการทำงานของแอพ ไม่ใช่ราคาจริง</span><button class="btn" type="button" id="btnLive">กลับไปใช้ข้อมูลจริง</button>`);
-  $("btnLive").onclick = () => { demo = false; for (const k in DATA) delete DATA[k]; fitted = {}; refresh(true); };
-  compute(); renderAll(); setStatus("โหมดสาธิต", "");
+  setStatus(`OANDA ${{ B:"Bid", M:"Mid", A:"Ask" }[S.oaPrice]} · ${S.oaEnv === "live" ? "Live" : "Demo"} · ` + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date()), "live");
 }
 
 // ---------------- UI wiring ----------------
 function saveSettings(){ store.set("settings", S); }
 function applySettingsUI(){
-  $("optSrc").value = S.src; $("optKey").value = S.key; $("optWeekend").checked = S.weekend;
   $("optOaEnv").value = S.oaEnv; $("optOaPrice").value = S.oaPrice; $("optOaToken").value = S.oaToken; $("optOaProxy").value = S.oaProxy;
   $("optRR").value = S.rr; $("optReqMS").checked = S.reqMS; $("optSound").checked = S.sound;
   document.querySelectorAll("[data-eng]").forEach(c => c.checked = !!S.eng[c.dataset.eng]);
 }
-function onDataSettingChange(){ saveSettings(); for (const k in DATA) delete DATA[k]; fitted = {}; demo = false; firstRun = true; refresh(true); }
+function onDataSettingChange(){ saveSettings(); clearResults(); firstRun = true; refresh(true); }
 function onCalcSettingChange(){ saveSettings(); compute(); renderAll(); }
 
-$("optSrc").onchange = e => { S.src = e.target.value; onDataSettingChange(); };
-$("optKey").onchange = e => { S.key = e.target.value.trim(); if (S.src === "twelve") onDataSettingChange(); else saveSettings(); };
-$("optWeekend").onchange = e => { S.weekend = e.target.checked; onDataSettingChange(); };
-$("optOaEnv").onchange = e => { S.oaEnv = e.target.value; if (S.src === "oanda") onDataSettingChange(); else saveSettings(); };
-$("optOaPrice").onchange = e => { S.oaPrice = e.target.value; if (S.src === "oanda") onDataSettingChange(); else saveSettings(); };
-$("optOaToken").onchange = e => { S.oaToken = e.target.value.trim(); if (S.src === "oanda") onDataSettingChange(); else saveSettings(); };
-$("optOaProxy").onchange = e => { S.oaProxy = e.target.value.trim(); if (S.src === "oanda") onDataSettingChange(); else saveSettings(); };
+$("optOaEnv").onchange = e => { S.oaEnv = e.target.value; onDataSettingChange(); };
+$("optOaPrice").onchange = e => { S.oaPrice = e.target.value; onDataSettingChange(); };
+$("optOaToken").onchange = e => { S.oaToken = e.target.value.trim(); onDataSettingChange(); };
+$("optOaProxy").onchange = e => { S.oaProxy = e.target.value.trim(); onDataSettingChange(); };
 $("optRR").onchange = e => { S.rr = Math.max(0.5, +e.target.value || 2); onCalcSettingChange(); };
 $("optReqMS").onchange = e => { S.reqMS = e.target.checked; onCalcSettingChange(); };
 $("optSound").onchange = e => { S.sound = e.target.checked; saveSettings(); };
 document.querySelectorAll("[data-eng]").forEach(c => c.onchange = () => { S.eng[c.dataset.eng] = c.checked; onCalcSettingChange(); });
 $("logFilter").onchange = renderLog;
-$("btnRefresh").onclick = () => { if (demo) return; refresh(true); };
+$("btnRefresh").onclick = () => refresh(true);
 $("btnNotify").onclick = async () => {
   beep();
   if (!window.Notification){ toast("เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน — ใช้เสียงและป๊อปอัปในหน้าแทน"); return; }
@@ -1083,6 +1020,7 @@ function applyView(){
 
 applySettingsUI();
 saveSettings();
+mountQuote();
 initChart();
 view = ["tv", "tv3", "kg"].includes(store.get("view", "tv")) ? store.get("view", "tv") : "tv";
 $("segView").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.view === view));
