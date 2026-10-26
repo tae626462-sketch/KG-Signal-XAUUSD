@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>KG Signal XAUUSD</title>
 <meta name="description" content="Kindergarten Signal v7.8 — วิเคราะห์ XAUUSD TF15 / 1H / 4H พร้อมกราฟ TradingView">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0e16">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KG XAUUSD">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -166,6 +174,26 @@ details[open].panel > summary::after{content:"−"}
 .steps a{color:var(--gold)}
 .hint a{color:var(--gold)}
 
+.icon-btn{display:inline-flex;align-items:center;gap:6px}
+.icon-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+dialog.sheet{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);padding:16px;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto}
+dialog.sheet::backdrop{background:rgba(3,6,12,.7)}
+dialog.sheet[open]{display:flex;flex-direction:column;gap:12px}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sheet-h h2{margin:0;font:600 17px/1.2 var(--f-display)}
+.x{border:1px solid var(--line);background:var(--panel2);border-radius:8px;width:32px;height:32px;color:var(--mute)}
+#shareText{width:100%;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;font:12.5px/1.55 var(--f-mono);color:var(--text)}
+.share-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.share-grid .btn{text-align:center;text-decoration:none;padding:10px 12px}
+.share-grid #shareNative,.share-grid #shareCopy{grid-column:1/-1}
+.share-line{background:#06c755;border-color:#06c755;color:#fff;font-weight:600}
+.share-fb{background:#1877f2;border-color:#1877f2;color:#fff;font-weight:600}
+#shareUrl{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;font:12.5px var(--f-mono)}
+.inst-icon{display:flex;gap:12px;align-items:center}
+.inst-icon img{border-radius:14px}
+.inst-icon div{display:flex;flex-direction:column;gap:2px}
+.isteps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.isteps b{color:var(--gold)}
 footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:12px}
 
 .toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;flex-direction:column;gap:8px;max-width:min(360px,calc(100vw - 32px))}
@@ -191,6 +219,8 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <div class="meta">
       <span class="pill"><span class="dot" id="liveDot"></span><span id="status">กำลังโหลดข้อมูล…</span></span>
       <div class="hbtns">
+        <button class="btn icon-btn" id="btnInstall" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>ติดตั้ง</button>
+        <button class="btn icon-btn" id="btnShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>แชร์</button>
         <button class="btn" id="btnNotify" type="button">เปิดแจ้งเตือน</button>
         <button class="btn gold" id="btnRefresh" type="button">รีเฟรช</button>
       </div>
@@ -322,6 +352,26 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   <span>สัญญาณเป็นเครื่องมือช่วยวิเคราะห์ ไม่ใช่คำแนะนำการลงทุน — ตรวจกราฟจริงก่อนเข้าออเดอร์ทุกครั้ง</span>
 </footer>
 </div>
+<dialog class="sheet" id="dlgShare" aria-labelledby="shareTitle">
+  <div class="sheet-h"><h2 id="shareTitle">แชร์ KG Signal XAUUSD</h2><button class="x" type="button" data-close aria-label="ปิด">✕</button></div>
+  <label class="checks"><span><input type="checkbox" id="shareWithSignal" checked> แนบสรุปสัญญาณล่าสุด</span></label>
+  <textarea id="shareText" rows="9" readonly aria-label="ข้อความที่จะแชร์"></textarea>
+  <div class="share-grid">
+    <button class="btn gold" type="button" id="shareNative" hidden>แชร์…</button>
+    <a class="btn share-line" id="shareLine" href="#" target="_blank" rel="noopener">LINE</a>
+    <a class="btn share-fb" id="shareFb" href="#" target="_blank" rel="noopener">Facebook</a>
+    <button class="btn" type="button" id="shareCopy">คัดลอกข้อความ</button>
+  </div>
+  <div class="field"><label for="shareUrl">ลิงก์แอพ</label><input type="text" id="shareUrl" readonly></div>
+  <p class="hint" id="shareWarn" hidden>ตอนนี้เปิดจากไฟล์ในเครื่อง ลิงก์จึงใช้กับคนอื่นไม่ได้ — อัปโหลดขึ้น GitHub Pages ก่อน แล้วแชร์จากลิงก์เว็บ</p>
+</dialog>
+
+<dialog class="sheet" id="dlgInstall" aria-labelledby="installTitle">
+  <div class="sheet-h"><h2 id="installTitle">ติดตั้งแอพบนเครื่อง</h2><button class="x" type="button" data-close aria-label="ปิด">✕</button></div>
+  <div class="inst-icon"><img src="icon-192.png" alt="" width="64" height="64"><div><b>KG Signal XAUUSD</b><span class="hint">เปิดเต็มจอเหมือนแอพ มีไอคอนบนหน้าจอโฮม</span></div></div>
+  <div id="installSteps"></div>
+</dialog>
+
 <div class="toast" id="toast" aria-live="polite"></div>
 
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
@@ -1094,6 +1144,81 @@ function applyView(){
   if (view === "tv") showTV(); else if (view === "tv3") showTV3(); else renderChart();
   store.set("view", view);
 }
+
+// ---------------- ติดตั้งแอพ (PWA) ----------------
+let installEvt = null;
+const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+const onWeb = /^https?:$/.test(location.protocol);
+function syncInstallBtn(){ $("btnInstall").hidden = isStandalone(); }
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; syncInstallBtn(); });
+window.addEventListener("appinstalled", () => { installEvt = null; syncInstallBtn(); toast("ติดตั้ง KG Signal XAUUSD แล้ว — เปิดได้จากไอคอนบนหน้าจอ"); });
+if (onWeb && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+function installSteps(){
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  if (!onWeb) return `<p>ตอนนี้เปิดจากไฟล์ในเครื่อง จึงติดตั้งไม่ได้ อัปโหลดทั้งโฟลเดอร์ <b>kg-signal-xauusd</b> ขึ้น GitHub Pages แล้วเปิดจากลิงก์เว็บ ปุ่มติดตั้งจะใช้ได้ทันที</p>`;
+  if (ios) return `<ol class="isteps"><li>เปิดหน้านี้ใน <b>Safari</b></li><li>กดปุ่ม <b>แชร์</b> (สี่เหลี่ยมมีลูกศรชี้ขึ้น) ด้านล่างจอ</li><li>เลือก <b>เพิ่มไปยังหน้าจอโฮม</b> แล้วกด <b>เพิ่ม</b></li></ol>`;
+  if (android) return `<ol class="isteps"><li>เปิดหน้านี้ใน <b>Chrome</b></li><li>กดเมนู <b>⋮</b> มุมขวาบน</li><li>เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b></li></ol>`;
+  return `<ol class="isteps"><li>เปิดหน้านี้ใน <b>Chrome</b> หรือ <b>Edge</b></li><li>กดไอคอน <b>ติดตั้ง</b> ท้ายช่องที่อยู่เว็บ (รูปจอมีลูกศรลง)</li><li>หรือเมนู <b>⋮</b> → <b>ติดตั้ง KG Signal XAUUSD</b></li></ol>`;
+}
+$("btnInstall").onclick = async () => {
+  if (installEvt){
+    installEvt.prompt();
+    const r = await installEvt.userChoice.catch(() => null);
+    installEvt = null;
+    if (r && r.outcome === "accepted") return;
+  }
+  $("installSteps").innerHTML = installSteps();
+  $("dlgInstall").showModal();
+};
+
+// ---------------- แชร์ ----------------
+const appUrl = () => location.href.split("#")[0];
+function signalSummary(){
+  const lines = [];
+  const now = new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date());
+  lines.push(`KG Signal XAUUSD · ${now}`);
+  const px = $("price").textContent; if (px && px !== "—") lines.push(`ราคา XAUUSD ${px}`);
+  if (RES["15m"] || RES["1h"] || RES["4h"]){
+    const v = computeVerdict();
+    lines.push(`สรุป Pullback 3 TF: ${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}`);
+    for (const id of ["15m", "1h", "4h"]){
+      const r = RES[id], tf = TFMAP[id]; if (!r) continue;
+      const e = r.events.filter(enabledEv).filter(x => r.n - 1 - x.i < tf.fresh).slice(-1)[0];
+      lines.push(e ? `${tf.label}: ${e.label} ${e.wp}% · Entry ${f2(e.entry)} · SL ${f2(e.sl)} · TP ${f2(e.tp2)}` : `${tf.label}: ยังไม่มีสัญญาณสด`);
+    }
+  }
+  lines.push("เครื่องมือช่วยวิเคราะห์ ไม่ใช่คำแนะนำการลงทุน");
+  return lines.join("\n");
+}
+function buildShare(){
+  const url = appUrl();
+  const text = $("shareWithSignal").checked ? signalSummary() : "KG Signal XAUUSD — สัญญาณ P-BUY / P-SELL ทองคำ TF15 / 1H / 4H เรียลไทม์\nเทรดง่ายๆ เด็กอนุบาลก็เทรดได้";
+  $("shareText").value = onWeb ? text + "\n" + url : text;
+  $("shareUrl").value = url;
+  $("shareWarn").hidden = onWeb;
+  $("shareLine").href = "https://line.me/R/share?text=" + encodeURIComponent($("shareText").value);
+  $("shareFb").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+  $("shareFb").hidden = !onWeb;
+  return { title:"KG Signal XAUUSD", text, url };
+}
+$("btnShare").onclick = () => { $("shareNative").hidden = !navigator.share; buildShare(); $("dlgShare").showModal(); };
+$("shareWithSignal").onchange = buildShare;
+$("shareNative").onclick = async () => {
+  const d = buildShare();
+  try { await navigator.share(onWeb ? d : { title: d.title, text: d.text }); $("dlgShare").close(); }
+  catch(e){ if (e && e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองคัดลอกข้อความแทน"); }
+};
+$("shareCopy").onclick = async () => {
+  const t = $("shareText").value;
+  try { await navigator.clipboard.writeText(t); toast("คัดลอกข้อความแล้ว"); }
+  catch(e){ $("shareText").focus(); $("shareText").select(); toast("เลือกข้อความไว้แล้ว กด Ctrl+C / คัดลอก"); }
+};
+$("shareUrl").onfocus = e => e.target.select();
+document.querySelectorAll("dialog [data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
+document.querySelectorAll("dialog.sheet").forEach(d => d.addEventListener("click", e => { if (e.target === d) d.close(); }));
+syncInstallBtn();
 
 applySettingsUI();
 saveSettings();
