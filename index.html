@@ -39,8 +39,8 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .brand .tag{color:var(--mute);font-size:13px}
 .quote{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .price{font:700 clamp(26px,4vw,38px)/1 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.tvq{width:min(330px,100%);min-height:82px;overflow:hidden}
-.tvq iframe{display:block}
+.pchg{font:500 13px/1.2 var(--f-mono)}
+.price.up{color:var(--buy)} .price.dn{color:var(--sell)} .price{transition:color .3s}
 .meta{display:flex;flex-direction:column;gap:4px;align-items:flex-end;font-size:12px;color:var(--mute)}
 .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--mute);background:var(--panel)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
@@ -159,8 +159,8 @@ details[open].panel > summary::after{content:"−"}
 .cks{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .ck{font:500 11px/1.4 var(--f-mono);color:var(--mute);white-space:nowrap}
 .ck.ok{color:var(--text)}
-.oanda-box{grid-column:1/-1;display:grid;gap:16px;grid-template-columns:1fr;padding-bottom:16px;border-bottom:1px solid var(--line)}
-@media(min-width:800px){.oanda-box{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.data-box{grid-column:1/-1;display:grid;gap:16px;grid-template-columns:1fr;padding-bottom:16px;border-bottom:1px solid var(--line)}
+@media(min-width:800px){.data-box{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .field input[type=password]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
 .steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13px}
 .steps a{color:var(--gold)}
@@ -183,7 +183,11 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <span class="tag">เทรดง่ายๆ เด็กอนุบาลก็เทรดได้ · วิเคราะห์ TF15 / 1H / 4H อัตโนมัติ</span>
   </div>
   <div class="quote">
-    <div class="tvq" id="tvQuote" aria-label="ราคา OANDA:XAUUSD จาก TradingView"></div>
+    <div>
+      <div class="lbl" id="srcLbl">XAUUSD · เรียลไทม์</div>
+      <div class="price" id="price">—</div>
+      <div class="pchg" id="pchg">&nbsp;</div>
+    </div>
     <div class="meta">
       <span class="pill"><span class="dot" id="liveDot"></span><span id="status">กำลังโหลดข้อมูล…</span></span>
       <div class="hbtns">
@@ -223,7 +227,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <section class="panel deck">
   <div class="ph">
-    <h2>OANDA:XAUUSD · TradingView</h2>
+    <h2>XAUUSD · <span id="tvSymLbl">TVC:GOLD</span></h2>
     <div class="ctrls">
       <div class="seg" role="group" aria-label="Timeframe" id="segTf">
         <button type="button" data-tf="15m" aria-pressed="true">TF15</button>
@@ -235,7 +239,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
         <button type="button" data-view="tv3" aria-pressed="false">3 TF</button>
         <button type="button" data-view="kg" aria-pressed="false">KG Signal</button>
       </div>
-      <a class="btn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD" target="_blank" rel="noopener">เปิดใน TradingView ↗</a>
+      <a class="btn" id="tvLink" href="https://www.tradingview.com/chart/?symbol=TVC%3AGOLD" target="_blank" rel="noopener">เปิดใน TradingView ↗</a>
     </div>
   </div>
   <div id="tvView">
@@ -248,7 +252,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
       <div><div class="tv3h">4H</div><div class="tv3c" id="tv3_4h"></div></div>
     </div>
   </div>
-  <div class="note" id="tvNote">กราฟสด OANDA:XAUUSD จาก TradingView · สัญญาณ KG v7.8 ดูได้ที่การ์ดด้านบน, บันทึกสัญญาณ และแท็บ “KG Signal” (กราฟพร้อมจุดสัญญาณ)</div>
+  <div class="note" id="tvNote">กราฟสดจาก TradingView ใช้ดูภาพรวม · สัญญาณ KG v7.8 คำนวณจาก Gold Price Index ดูได้ที่การ์ดด้านบน, บันทึกสัญญาณ และแท็บ “KG Signal” (กราฟพร้อมจุดสัญญาณ)</div>
   <div id="kgView" hidden>
     <div id="chartMain"></div>
     <div id="chartStoch"></div>
@@ -279,36 +283,16 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 <details class="panel" id="settings">
   <summary>ตั้งค่า</summary>
   <div class="set">
-    <div class="field oanda-box">
+    <div class="field data-box">
       <div class="field">
-        <span class="hint">สัญญาณคำนวณจากแท่งเทียน OANDA XAU/USD ชุดเดียวกับกราฟ OANDA:XAUUSD บน TradingView</span>
-        <label for="optOaEnv">บัญชี OANDA</label>
-        <select id="optOaEnv">
-          <option value="practice">Demo (fxpractice)</option>
-          <option value="live">Live (fxtrade)</option>
-        </select>
-        <label for="optOaPrice">ราคาที่ใช้สร้างแท่ง</label>
-        <select id="optOaPrice">
-          <option value="B">Bid (ตรงกับกราฟ TradingView / MT5)</option>
-          <option value="M">Mid</option>
-          <option value="A">Ask</option>
-        </select>
+        <label>แหล่งราคาที่ใช้คำนวณสัญญาณ</label>
+        <span>Gold Price Index (XAUUSDT) · อัปเดตเรียลไทม์ทุก 1 วินาที</span>
+        <span class="hint">ราคาทองคำรวมจากหลายผู้ให้ข้อมูล ผ่าน API สาธารณะของ Binance ไม่ต้องใช้ key · หยุดนิ่งเมื่อตลาดทองปิด แอพตัดแท่งช่วงตลาดปิดออกให้</span>
       </div>
       <div class="field">
-        <label for="optOaToken">OANDA API Token (วิธี A: ต่อตรง)</label>
-        <input type="password" id="optOaToken" placeholder="วาง Personal Access Token" autocomplete="off">
-        <label for="optOaProxy">Apps Script URL (วิธี B: ผ่าน Google Apps Script)</label>
-        <input type="text" id="optOaProxy" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-        <span class="hint">ใส่อย่างใดอย่างหนึ่ง ถ้ามี Apps Script URL แอพจะใช้วิธี B ก่อน · token เก็บในเบราว์เซอร์เครื่องนี้เท่านั้น</span>
-      </div>
-      <div class="field">
-        <label>วิธีรับ OANDA Token</label>
-        <ol class="steps">
-          <li>สมัคร/ล็อกอินบัญชี Demo ที่ <a href="https://www.oanda.com/bvi-th/" target="_blank" rel="noopener">oanda.com</a></li>
-          <li>เข้า Hub → <b>Tools / Manage API Access</b> → Generate token</li>
-          <li>คัดลอก token มาวางช่องซ้าย เลือกบัญชี Demo</li>
-          <li>ถ้าวิธี A ขึ้น “ต่อ OANDA ไม่ได้” ให้ใช้วิธี B ด้วยไฟล์ <b>OANDA_Proxy.gs</b></li>
-        </ol>
+        <label for="optTvSym">สัญลักษณ์กราฟ TradingView</label>
+        <input type="text" id="optTvSym" placeholder="TVC:GOLD" autocomplete="off" spellcheck="false">
+        <span class="hint">ใช้กับแท็บ TradingView และ 3 TF เท่านั้น ไม่มีผลกับการคำนวณสัญญาณ · พิมพ์แบบที่ใช้ใน TradingView เช่น TVC:GOLD หรือ XAUUSD ของโบรกที่คุณใช้</span>
       </div>
     </div>
     <div class="field">
@@ -626,51 +610,100 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem("kgxau." + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem("kgxau." + k, JSON.stringify(v)); } catch(e){} }
 };
-const S = Object.assign({ rr:2, reqMS:true, sound:true,
-  oaEnv:"practice", oaPrice:"B", oaToken:"", oaProxy:"",
+const S = Object.assign({ rr:2, reqMS:true, sound:true, tvSym:"TVC:GOLD",
   eng:{ main:true, weak:true, rej:true, pb:true, swing:true, crev:true } }, store.get("settings", {}));
 S.eng = Object.assign({ main:true, weak:true, rej:true, pb:true, swing:true, crev:true }, S.eng || {});
 // ใช้เฉพาะ Pullback Reversal (P-BUY / P-SELL) เป็นสัญญาณเทรด
 if (!S.pbOnly){ S.eng = { main:false, weak:false, rej:false, pb:true, swing:false, crev:false }; S.pbOnly = true; }
-delete S.src; delete S.key; delete S.weekend; delete S.v2;
+["key", "weekend", "v2", "v3", "src", "oaEnv", "oaPrice", "oaToken", "oaProxy"].forEach(k => delete S[k]);
+if (!S.tvSym || /^OANDA:/i.test(S.tvSym)) S.tvSym = "TVC:GOLD";
 
 const DATA = {}, RES = {}, LASTFETCH = {};
 let chartTf = "15m", view = "tv";
 
-// OANDA v20: /v3/instruments/XAU_USD/candles — แท่งชุดเดียวกับ OANDA:XAUUSD (Daily/H4 align 17:00 New York)
-const OA_GRAN = { "15m":"M15", "1h":"H1", "4h":"H4", "1d":"D" };
-const oandaReady = () => !!(S.oaProxy || S.oaToken);
-async function fetchOanda(tf){
-  if (!oandaReady()) throw new Error("ยังไม่ได้ใส่ OANDA token หรือ Apps Script URL");
-  const g = OA_GRAN[tf.id], px = S.oaPrice;
-  let j;
-  if (S.oaProxy){
-    const u = S.oaProxy + (S.oaProxy.includes("?") ? "&" : "?") + `granularity=${g}&count=600&price=${px}&env=${S.oaEnv}`;
-    const r = await fetch(u, { cache:"no-store", redirect:"follow" });
-    j = await r.json();
-  } else {
-    const host = S.oaEnv === "live" ? "https://api-fxtrade.oanda.com" : "https://api-fxpractice.oanda.com";
-    let r;
-    try {
-      r = await fetch(`${host}/v3/instruments/XAU_USD/candles?granularity=${g}&count=600&price=${px}`, {
-        cache:"no-store", headers:{ "Authorization":"Bearer " + S.oaToken, "Accept-Datetime-Format":"UNIX" } });
-    } catch(e){ throw new Error("ต่อ OANDA ไม่ได้จากเบราว์เซอร์ — ใช้วิธี B (Apps Script)"); }
-    j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(r.status === 401 ? "Token ไม่ถูกต้อง หรือเลือกบัญชี Demo/Live ไม่ตรงกับ token" : (j.errorMessage || "OANDA HTTP " + r.status));
-  }
-  if (j.error || j.errorMessage) throw new Error(j.error || j.errorMessage);
-  if (!Array.isArray(j.candles)) throw new Error("OANDA ไม่ส่งข้อมูลแท่งเทียนกลับมา");
-  const key = px === "B" ? "bid" : px === "A" ? "ask" : "mid";
-  return j.candles.filter(c => c[key]).map(c => {
-    const t = /^\d/.test(c.time) && !c.time.includes("-") ? Math.floor(parseFloat(c.time)) : Math.floor(Date.parse(c.time) / 1000);
-    const q = c[key];
-    return { t, o:+q.o, h:+q.h, l:+q.l, c:+q.c, closed: !!c.complete };
-  });
+// Binance USDⓈ-M TradFi perpetual XAUUSDT — ใช้ Price Index (ราคาทองคำรวมจากหลายแหล่ง)
+const BG = { host:"https://fapi.binance.com", ws:"wss://fstream.binance.com/stream?streams=xauusdt@markPrice@1s/xauusdt@kline_1m", mode:"index" };
+// ตลาดทองปิด: ศุกร์ 21:00 UTC – อาทิตย์ 22:00 UTC (ใช้กับราคาซื้อขายของสัญญา ซึ่งเปิด 24/7)
+function inGoldClosed(tSec){
+  const d = new Date(tSec * 1000), wd = d.getUTCDay(), hr = d.getUTCHours();
+  return wd === 6 || (wd === 5 && hr >= 21) || (wd === 0 && hr < 22);
 }
+function parseKlines(j){
+  const now = Date.now();
+  return j.map(k => ({ t: Math.floor(k[0] / 1000), o:+k[1], h:+k[2], l:+k[3], c:+k[4], closed: k[6] < now }));
+}
+async function fetchBGold(tf){
+  const q = `interval=${tf.bin}&limit=600`;
+  if (BG.mode === "index"){
+    try {
+      const r = await fetch(`${BG.host}/fapi/v1/indexPriceKlines?pair=XAUUSDT&${q}`, { cache:"no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json();
+      if (!Array.isArray(j) || j.length < 60) throw new Error("index data empty");
+      // Index หยุดนิ่งช่วงตลาดปิด → แท่งที่ไม่มีการเคลื่อนไหว (H = L) คือช่วงปิด ตัดออก ยกเว้นแท่งปัจจุบัน
+      const bars = parseKlines(j);
+      return bars.filter((b, i) => b.h !== b.l || i === bars.length - 1);
+    } catch(e){ BG.mode = "last"; }
+  }
+  const r = await fetch(`${BG.host}/fapi/v1/klines?symbol=XAUUSDT&${q}`, { cache:"no-store" });
+  if (!r.ok) throw new Error("Binance HTTP " + r.status);
+  const j = await r.json();
+  if (!Array.isArray(j)) throw new Error(j.msg || "Binance ไม่ส่งข้อมูลกลับมา");
+  let bars = parseKlines(j);
+  if (tf.id === "1d") bars = bars.filter(b => { const wd = new Date(b.t * 1000).getUTCDay(); return wd !== 6 && wd !== 0; });
+  else bars = bars.filter(b => !inGoldClosed(b.t));
+  return bars;
+}
+
+// ---------- เรียลไทม์: อัปเดตแท่งปัจจุบันทุก tick ----------
+let ws = null, wsAlive = false, wsRetry = 0, lastTick = 0, lastPrice = NaN;
+const closeTimers = {};
+function startRealtime(){
+  stopRealtime();
+  if (!("WebSocket" in window)) return;
+  try { ws = new WebSocket(BG.ws); } catch(e){ return; }
+  ws.onopen = () => { wsAlive = true; wsRetry = 0; };
+  ws.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch(e){ return; }
+    const d = m.data || m;
+    if (d.e === "markPriceUpdate" && BG.mode === "index") onTick(+d.i, Math.floor(d.E / 1000));
+    else if (d.e === "kline" && BG.mode === "last") onTick(+d.k.c, Math.floor(d.E / 1000));
+  };
+  ws.onclose = () => { wsAlive = false; ws = null; wsRetry++; setTimeout(() => { if (!ws) startRealtime(); }, Math.min(30000, 1500 * wsRetry)); };
+  ws.onerror = () => { try { ws && ws.close(); } catch(e){} };
+}
+function stopRealtime(){ if (ws){ const w = ws; ws = null; w.onclose = null; try { w.close(); } catch(e){} } wsAlive = false; }
+function onTick(px, ts){
+  if (!isFinite(px) || px <= 0) return;
+  const prev = lastPrice;
+  if (px === prev && BG.mode === "index" && Date.now() - lastTick < 60000) return; // index นิ่ง (ตลาดปิด)
+  lastPrice = px; lastTick = Date.now();
+  if (BG.mode === "last" && inGoldClosed(ts)) return;
+  for (const tf of TFS){
+    const bars = DATA[tf.id]; if (!bars || !bars.length) continue;
+    const b = bars[bars.length - 1];
+    if (ts < b.t + tf.sec){ b.c = px; if (px > b.h) b.h = px; if (px < b.l) b.l = px; }
+    else {
+      // แท่งเดิมปิดแล้ว → เปิดแท่งใหม่ชั่วคราว แล้วดึงแท่งที่ปิดจริงจาก REST เพื่อคำนวณสัญญาณ
+      b.closed = true;
+      bars.push({ t: Math.floor(ts / tf.sec) * tf.sec, o: px, h: px, l: px, c: px, closed: false });
+      clearTimeout(closeTimers[tf.id]);
+      closeTimers[tf.id] = setTimeout(() => { LASTFETCH[tf.id] = 0; refresh(false); }, 2500);
+    }
+  }
+  renderPrice(prev);
+  if (view === "kg" && cMain && DATA[chartTf]){
+    const b = DATA[chartTf][DATA[chartTf].length - 1];
+    try { sCandle.update({ time: b.t + TZ, open: b.o, high: b.h, low: b.l, close: b.c }); } catch(e){}
+  }
+  setStatus("เรียลไทม์ · " + clock(), "live");
+}
+const clock = () => new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date());
 function needFetch(tf){
   if (!DATA[tf.id]) return true;
   const age = Date.now() - (LASTFETCH[tf.id] || 0);
-  return age > ({ "15m":20000, "1h":60000, "4h":120000, "1d":600000 })[tf.id];
+  // WebSocket อัปเดตราคาอยู่แล้ว REST ใช้ตรวจแท่งปิด; ถ้า WebSocket หลุด ดึงถี่ขึ้น
+  return age > (wsAlive ? { "15m":60000, "1h":120000, "4h":300000, "1d":900000 } : { "15m":5000, "1h":15000, "4h":60000, "1d":600000 })[tf.id];
 }
 
 // ---------------- helpers ----------------
@@ -731,7 +764,7 @@ function pbCount(o){ return [o.zone, o.ext, o.rej].filter(Boolean).length; }
 function renderCards(){
   for (const id of ["15m", "1h", "4h"]){
     const el = $("card-" + id), r = RES[id], tf = TFMAP[id];
-    if (!r || !r.last){ el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span></div><div class="last empty">รอเชื่อมราคา OANDA</div>`; continue; }
+    if (!r || !r.last){ el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span></div><div class="last empty">กำลังโหลดราคา XAUUSD…</div>`; continue; }
     const L = r.last;
     const kz = L.k >= P.pbOB ? ["sell", `${f2(L.k)} · โซน P-SELL`] : L.k <= P.pbOS ? ["buy", `${f2(L.k)} · โซน P-BUY`] : ["neu", f2(L.k)];
     const ec = L.ext >= P.pbAtr ? "sell" : -L.ext >= P.pbAtr ? "buy" : "neu";
@@ -763,7 +796,7 @@ function renderCards(){
 function renderVerdict(){
   const box = $("vWord");
   if (!RES["15m"] && !RES["1h"] && !RES["4h"]){
-    box.className = "vword v-wait"; box.innerHTML = `<b>—</b><span class="sub">รอเชื่อมราคา OANDA</span>`;
+    box.className = "vword v-wait"; box.innerHTML = `<b>—</b><span class="sub">กำลังโหลดราคา XAUUSD…</span>`;
     $("vNeedle").style.left = "50%"; $("vPlan").innerHTML = ""; $("vReasons").innerHTML = ""; $("mtf").innerHTML = ""; $("vTime").textContent = "—";
     return;
   }
@@ -798,17 +831,21 @@ function renderLog(){
     : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณ</td></tr>`;
 }
 
-function renderPrice(){}
-// ราคาหัวแอพ: วิดเจ็ต Single Quote ของ TradingView สัญลักษณ์ OANDA:XAUUSD (ตัวเลขเดียวกับกราฟ)
-function mountQuote(){
-  const box = $("tvQuote");
-  box.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
-  const s = document.createElement("script");
-  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js";
-  s.async = true;
-  s.textContent = JSON.stringify({ symbol:"OANDA:XAUUSD", width:"100%", isTransparent:true, colorTheme:"dark", locale:"th_TH" });
-  s.onerror = () => { box.innerHTML = '<div class="lbl">OANDA:XAUUSD</div><div class="hint">โหลดราคาจาก TradingView ไม่สำเร็จ</div>'; };
-  box.firstChild.appendChild(s);
+function renderPrice(prev){
+  const b = DATA["15m"]; if (!b || !b.length) return;
+  const p = b[b.length - 1].c;
+  const el = $("price");
+  el.textContent = f2(p);
+  if (isFinite(prev) && p !== prev){ el.className = "price " + (p > prev ? "up" : "dn"); clearTimeout(el._t); el._t = setTimeout(() => el.className = "price", 600); }
+  const d = DATA["1d"];
+  if (d && d.length > 1){
+    const prevClose = d.filter(x => x.closed).slice(-1)[0]?.c;
+    if (prevClose){
+      const ch = p - prevClose, pc = ch / prevClose * 100;
+      $("pchg").innerHTML = `<span style="color:${ch >= 0 ? "var(--buy)" : "var(--sell)"}">${ch >= 0 ? "+" : ""}${f2(ch)} (${pc >= 0 ? "+" : ""}${pc.toFixed(2)}%)</span> <span style="color:var(--mute)">จากปิดวันก่อน</span>`;
+    }
+  }
+  $("srcLbl").textContent = `XAUUSD · ${BG.mode === "index" ? "Gold Price Index" : "XAUUSDT"} · เรียลไทม์`;
 }
 
 // ---------------- chart (TradingView Lightweight Charts) ----------------
@@ -874,7 +911,7 @@ let tvLoaded = false, tvLoading = false, tvTf = null, tv3Made = false;
 const tvQueue = [];
 function tvWidget(containerId, tfId, compact){
   $(containerId).innerHTML = "";
-  new TradingView.widget({ autosize:true, symbol:"OANDA:XAUUSD", interval:TFMAP[tfId].tv, timezone:"Asia/Bangkok",
+  new TradingView.widget({ autosize:true, symbol:S.tvSym, interval:TFMAP[tfId].tv, timezone:"Asia/Bangkok",
     theme:"dark", style:"1", locale:"th_TH", container_id:containerId, allow_symbol_change:false,
     hide_side_toolbar:compact, hide_top_toolbar:false, withdateranges:!compact, details:false,
     backgroundColor:"#111725", gridColor:"rgba(35,44,64,.6)",
@@ -890,7 +927,7 @@ function withTV(fn){
     $("tvChart").innerHTML = `<div class="note">โหลด TradingView ไม่สำเร็จ — ตรวจอินเทอร์เน็ตแล้วรีเฟรชหน้า</div>`; };
   document.head.appendChild(s);
 }
-// มุมมองเดียว: OANDA:XAUUSD ตาม TF ที่เลือก
+// มุมมองเดียว: กราฟ TradingView ตาม TF ที่เลือก
 function showTV(){ withTV(() => { if (tvTf === chartTf) return; tvTf = chartTf; tvWidget("tvChart", chartTf, false); }); }
 // 3 TF พร้อมกัน: TF15 / 1H / 4H
 function showTV3(){ withTV(() => { if (tv3Made) return; tv3Made = true; ["15m", "1h", "4h"].forEach(id => tvWidget("tv3_" + id, id, true)); }); }
@@ -914,7 +951,7 @@ function checkNewSignals(first){
     const r = RES[id]; if (!r || !r.n) continue;
     const lastT = r.bars[r.n - 1].t;
     const news = r.events.filter(e => enabledEv(e) && e.t === lastT);
-    const key = "oanda:" + id;
+    const key = "bgold:" + id;
     if (!first && news.length && seen[key] !== lastT){
       for (const e of news){
         const msg = `KG ${TFMAP[id].label} · ${e.label} @ ${f2(e.entry)} | SL ${f2(e.sl)} | TP ${f2(e.tp2)}`;
@@ -937,55 +974,50 @@ function compute(){
 function renderAll(){ renderCards(); renderVerdict(); renderLog(); renderChart(); }
 function setStatus(txt, state){ $("status").textContent = txt; $("liveDot").className = "dot " + (state || ""); }
 function banner(html, cls){ $("bannerBox").innerHTML = html ? `<div class="banner ${cls || ""}">${html}</div>` : ""; }
-function openSetup(){ $("settings").open = true; $("settings").scrollIntoView({ behavior:"smooth" }); setTimeout(() => $("optOaToken").focus(), 300); }
 function clearResults(){ for (const k in DATA) delete DATA[k]; for (const k in RES) delete RES[k]; fitted = {}; }
 
 async function refresh(force){
   if (busy) return;
-  if (!oandaReady()){
-    clearResults();
-    setStatus("ยังไม่เชื่อม OANDA", "");
-    banner(`<span><b>เชื่อมราคา OANDA เพื่อเริ่มคำนวณสัญญาณ</b> — แอพจะคำนวณ KG v7.8 จากแท่งเทียน OANDA XAU/USD ชุดเดียวกับกราฟ OANDA:XAUUSD เท่านั้น ใส่ OANDA API Token (บัญชี Demo ฟรี) หรือ Apps Script URL ในหน้าตั้งค่า</span>
-      <button class="btn gold" type="button" id="btnSetup">ตั้งค่า OANDA</button>`);
-    $("btnSetup").onclick = openSetup;
-    renderCards(); renderVerdict(); renderLog();
-    return;
-  }
   busy = true;
   const todo = TFS.filter(tf => force || needFetch(tf));
   const errs = [];
   await Promise.all(todo.map(async tf => {
-    try { DATA[tf.id] = await fetchOanda(tf); LASTFETCH[tf.id] = Date.now(); }
+    try { DATA[tf.id] = await fetchBGold(tf); LASTFETCH[tf.id] = Date.now(); }
     catch(e){ errs.push(tf.label + ": " + (e.message || e)); }
   }));
   busy = false;
   if (!DATA["15m"]){
-    setStatus("ต่อ OANDA ไม่สำเร็จ", "err");
-    banner(`<span>ดึงราคา OANDA ไม่สำเร็จ: ${esc(errs[0] || "network")} — ตรวจ token และบัญชี Demo/Live หรือใช้ Apps Script URL (วิธี B)</span>
-      <button class="btn" type="button" id="btnSetup">เปิดตั้งค่า</button>`, "err");
-    $("btnSetup").onclick = openSetup;
+    setStatus("ดึงราคาไม่สำเร็จ", "err");
+    banner(`<span>ดึงราคา XAUUSD ไม่สำเร็จ: ${esc(errs[0] || "network")} — ตรวจอินเทอร์เน็ต แล้วกดรีเฟรช</span>
+      <button class="btn" type="button" id="btnRetry">ลองใหม่</button>`, "err");
+    $("btnRetry").onclick = () => refresh(true);
     renderCards(); renderVerdict(); renderLog();
     return;
   }
   banner(errs.length ? `<span>บาง TF โหลดไม่สำเร็จ: ${esc(errs.join(" · "))}</span>` : "");
-  compute(); renderAll(); checkNewSignals(firstRun); firstRun = false;
-  setStatus(`OANDA ${{ B:"Bid", M:"Mid", A:"Ask" }[S.oaPrice]} · ${S.oaEnv === "live" ? "Live" : "Demo"} · ` + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date()), "live");
+  compute(); renderAll(); renderPrice(); checkNewSignals(firstRun); firstRun = false;
+  if (!ws) startRealtime();
+  if (!wsAlive) setStatus("อัปเดต · " + clock(), "live");
 }
 
 // ---------------- UI wiring ----------------
 function saveSettings(){ store.set("settings", S); }
 function applySettingsUI(){
-  $("optOaEnv").value = S.oaEnv; $("optOaPrice").value = S.oaPrice; $("optOaToken").value = S.oaToken; $("optOaProxy").value = S.oaProxy;
+  $("optTvSym").value = S.tvSym; applyTvSym();
   $("optRR").value = S.rr; $("optReqMS").checked = S.reqMS; $("optSound").checked = S.sound;
   document.querySelectorAll("[data-eng]").forEach(c => c.checked = !!S.eng[c.dataset.eng]);
 }
-function onDataSettingChange(){ saveSettings(); clearResults(); firstRun = true; refresh(true); }
+function applyTvSym(){
+  $("tvSymLbl").textContent = S.tvSym;
+  $("tvLink").href = "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(S.tvSym);
+}
 function onCalcSettingChange(){ saveSettings(); compute(); renderAll(); }
 
-$("optOaEnv").onchange = e => { S.oaEnv = e.target.value; onDataSettingChange(); };
-$("optOaPrice").onchange = e => { S.oaPrice = e.target.value; onDataSettingChange(); };
-$("optOaToken").onchange = e => { S.oaToken = e.target.value.trim(); onDataSettingChange(); };
-$("optOaProxy").onchange = e => { S.oaProxy = e.target.value.trim(); onDataSettingChange(); };
+$("optTvSym").onchange = e => {
+  S.tvSym = (e.target.value.trim() || "TVC:GOLD").toUpperCase(); e.target.value = S.tvSym;
+  saveSettings(); applyTvSym(); tvTf = null; tv3Made = false;
+  if (view === "tv") showTV(); else if (view === "tv3") showTV3();
+};
 $("optRR").onchange = e => { S.rr = Math.max(0.5, +e.target.value || 2); onCalcSettingChange(); };
 $("optReqMS").onchange = e => { S.reqMS = e.target.checked; onCalcSettingChange(); };
 $("optSound").onchange = e => { S.sound = e.target.checked; saveSettings(); };
@@ -1020,7 +1052,6 @@ function applyView(){
 
 applySettingsUI();
 saveSettings();
-mountQuote();
 initChart();
 view = ["tv", "tv3", "kg"].includes(store.get("view", "tv")) ? store.get("view", "tv") : "tv";
 $("segView").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.view === view));
