@@ -13,6 +13,23 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KG XAUUSD">
+<script>
+  // ===== Google Analytics 4 =====
+  // วาง Measurement ID ของคุณ (รูปแบบ G-XXXXXXXXXX) ระหว่างเครื่องหมายคำพูดด้านล่าง แล้วอัปโหลดไฟล์นี้ขึ้น GitHub Pages
+  window.GA_ID = "";
+  (function(){
+    if (!/^G-[A-Z0-9]+$/.test(window.GA_ID) || !/^https?:$/.test(location.protocol) || /^(localhost|127\.)/.test(location.hostname)) return;
+    var s = document.createElement("script"); s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + window.GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", window.GA_ID, {
+      app_mode: (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) ? "installed" : "browser"
+    });
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -63,6 +80,17 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .banner.err{border-color:var(--sell);background:var(--sell-soft)}
 
 /* top grid */
+.sys{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.sys-seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);flex:1 1 420px;max-width:620px}
+.sys-seg button{border:0;background:transparent;padding:10px 14px;display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;color:var(--mute)}
+.sys-seg button b{font:700 16px/1.2 var(--f-display);color:var(--text)}
+.sys-seg button span{font:500 11.5px/1.2 var(--f-mono)}
+.sys-seg button + button{border-left:1px solid var(--line)}
+.sys-seg button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 -3px 0 var(--gold)}
+.sys-seg button[aria-pressed="true"] b{color:var(--gold)}
+.sys .hint{flex:1 1 240px}
+.lg-pb,.lg-main{display:contents}
+.lg-pb[hidden],.lg-main[hidden]{display:none}
 .top{display:grid;gap:12px;grid-template-columns:1fr}
 @media(min-width:720px){.top{grid-template-columns:repeat(3,minmax(0,1fr))}.verdict{grid-column:1/-1}}
 @media(min-width:1180px){.top{grid-template-columns:minmax(300px,1.15fr) repeat(3,minmax(0,1fr))}.verdict{grid-column:auto}}
@@ -115,6 +143,17 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .last .lv b{font:600 13px/1 var(--f-mono);font-variant-numeric:tabular-nums}
 .last.empty{color:var(--mute);font-size:13px}
 .last.fresh{border-color:var(--gold)}
+.sel{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+@media(max-width:720px){
+  table.log{min-width:0}
+  .log thead{display:none}
+  .log tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 10px;padding:12px 14px;border-bottom:1px solid var(--grid)}
+  .log td{border:0;padding:0;white-space:normal;text-align:left!important;min-width:0}
+  .log td[data-l]::before{content:attr(data-l);display:block;font:500 9.5px/1.4 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .log td.c-time{grid-column:span 2;align-self:center}
+  .log td.c-wp{grid-column:span 2}
+  .log tr:hover td{background:none}
+}
 
 /* chart deck */
 .deck .ph{flex-wrap:wrap}
@@ -124,7 +163,11 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .ctrls{display:flex;gap:8px;flex-wrap:wrap}
 #chartMain{height:460px}
 #chartStoch{height:120px;border-top:1px solid var(--line)}
-#tvBox{height:600px}
+#tvBox{height:560px}
+.tvsto{height:170px;border-top:1px solid var(--line);display:flex;flex-direction:column;background:#111725}
+.tvsto-h{display:flex;justify-content:space-between;gap:8px;padding:6px 12px;font:500 11.5px/1.3 var(--f-mono);color:var(--mute)}
+.tvsto-h b{color:var(--text);font-weight:600}
+.tvsto-c{flex:1;min-height:0}
 #tvBox > div{height:100%}
 .tv3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .tv3 > div{min-width:0;border-right:1px solid var(--line)}
@@ -134,7 +177,7 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 @media(max-width:900px){.tv3{grid-template-columns:1fr}.tv3 > div{border-right:0;border-bottom:1px solid var(--line)}.tv3c{height:400px}}
 .ctrls .btn{text-decoration:none;display:inline-flex;align-items:center}
 .seg button:disabled{opacity:.35;cursor:default}
-@media(max-width:640px){#chartMain{height:340px}#tvBox{height:460px}.plan{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){#chartMain{height:340px}#tvBox{height:420px}.tvsto{height:150px}.plan{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
@@ -230,14 +273,23 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <div id="bannerBox"></div>
 
+<nav class="sys" aria-label="เลือกระบบสัญญาณ">
+  <span class="lbl">ระบบสัญญาณ</span>
+  <div class="sys-seg" role="group" id="segSys">
+    <button type="button" data-sys="pb" aria-pressed="true"><b>Pullback</b><span>P-BUY / P-SELL</span></button>
+    <button type="button" data-sys="main" aria-pressed="false"><b>State Machine</b><span>BUY / SELL + MS Gate</span></button>
+  </div>
+  <span class="hint" id="sysHint"></span>
+</nav>
+
 <section class="top">
   <article class="panel verdict" id="verdict">
-    <div class="ph"><h2>สรุป Pullback 3 TF</h2><span class="lbl" id="vTime">—</span></div>
+    <div class="ph"><h2 id="vTitle">สรุป Pullback 3 TF</h2><span class="lbl" id="vTime">—</span></div>
     <div class="vbody">
       <div class="vword v-wait" id="vWord"><b>—</b><span class="sub">กำลังคำนวณ</span></div>
       <div>
         <div class="meter"><i id="vNeedle" style="left:50%"></i></div>
-        <div class="meter-scale"><span>P-SELL</span><span>รอ</span><span>P-BUY</span></div>
+        <div class="meter-scale"><span id="mSell">P-SELL</span><span>รอ</span><span id="mBuy">P-BUY</span></div>
       </div>
       <div id="vPlan"></div>
       <div>
@@ -274,23 +326,28 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   </div>
   <div id="tvView">
     <div id="tvBox"><div id="tvChart"></div></div>
+    <div class="tvsto" id="tvSto"></div>
   </div>
   <div id="tv3View" hidden>
     <div class="tv3">
-      <div><div class="tv3h">TF15</div><div class="tv3c" id="tv3_15m"></div></div>
-      <div><div class="tv3h">1H</div><div class="tv3c" id="tv3_1h"></div></div>
-      <div><div class="tv3h">4H</div><div class="tv3c" id="tv3_4h"></div></div>
+      <div><div class="tv3h">TF15</div><div class="tv3c" id="tv3_15m"></div><div class="tvsto" id="tvSto_15m"></div></div>
+      <div><div class="tv3h">1H</div><div class="tv3c" id="tv3_1h"></div><div class="tvsto" id="tvSto_1h"></div></div>
+      <div><div class="tv3h">4H</div><div class="tv3c" id="tv3_4h"></div><div class="tvsto" id="tvSto_4h"></div></div>
     </div>
   </div>
-  <div class="note" id="tvNote">กราฟสดจาก TradingView ใช้ดูภาพรวม · สัญญาณ KG v7.8 คำนวณจาก Gold Price Index ดูได้ที่การ์ดด้านบน, บันทึกสัญญาณ และแท็บ “KG Signal” (กราฟพร้อมจุดสัญญาณ)</div>
+  <div class="note" id="tvNote">กราฟแท่งเทียนสดจาก TradingView · Stochastic 9,3,3 ด้านล่างกราฟคำนวณโดยแอพจาก Gold Price Index (ค่าเดียวกับที่ใช้คำนวณสัญญาณ) · จุดสัญญาณดูได้ที่แท็บ “KG Signal”</div>
   <div id="kgView" hidden>
     <div id="chartMain"></div>
     <div id="chartStoch"></div>
     <div class="legend">
-      <span><i style="background:#26c6da"></i>P-BUY (Pullback Reversal)</span>
-      <span><i style="background:#ff7043"></i>P-SELL (Pullback Reversal)</span>
+      <div class="lg-main"><span><i style="background:#2fbf71"></i>BUY / <i style="background:#ef5350"></i>SELL (State Machine + MS Gate)</span></div>
+      <div class="lg-pb"><span><i style="background:#26c6da"></i>P-BUY</span>
+      <span><i style="background:#ff7043"></i>P-SELL</span>
+      <span><i style="background:#8d99b3;border-radius:50%"></i>P ✕1H = ถูก TF ที่กันตัดทิ้ง (ไม่นับ)</span></div>
       <span><i style="background:#e3b04b80"></i>EMA50</span>
-      <span>เงื่อนไข: Stoch เคยแตะ 35/65 ใน 4 แท่ง + K ตัด D + ยืดจาก EMA50 ≥ 1.5 ATR + Hammer/Star ใน 4 แท่ง + คะแนน ≥ 50%</span>
+      <span><i style="background:#4aa3ff"></i>Stoch 9,3,3</span>
+      <div class="lg-pb"><span>เงื่อนไข P: Stoch เคยแตะ 35/65 ใน 4 แท่ง + K ตัด D + ยืดจาก EMA50 ≥ 1.5 ATR + Hammer/Star ใน 4 แท่ง + คะแนน ≥ 50% + TF ที่กันไม่ขวาง</span></div>
+      <div class="lg-main"><span>เงื่อนไข State: Stoch OS→OB→OS (Low2 ไม่ต่ำกว่า Low1) แล้ว K ตัด D ขึ้น + MS Gate เปิด · SELL กลับด้าน</span></div>
     </div>
   </div>
 </section>
@@ -298,12 +355,14 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 <section class="panel">
   <div class="ph">
     <h2>บันทึกสัญญาณล่าสุด</h2>
-    <select id="logFilter" aria-label="กรองตาม TF" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px">
-      <option value="all">ทุก TF</option><option value="15m">TF15</option><option value="1h">1H</option><option value="4h">4H</option>
-    </select>
+    <div class="ctrls">
+      <select id="logFilter" class="sel" aria-label="กรองตาม TF">
+        <option value="all">ทุก TF</option><option value="15m">TF15</option><option value="1h">1H</option><option value="4h">4H</option>
+      </select>
+    </div>
   </div>
   <div class="tablewrap">
-    <table>
+    <table class="log">
       <thead><tr><th>เวลา (ไทย)</th><th>TF</th><th>สัญญาณ</th><th class="n">Entry</th><th class="n">SL</th><th class="n">TP1 (1R)</th><th class="n">TP2</th><th class="n">Win %</th></tr></thead>
       <tbody id="logBody"><tr><td colspan="8" style="color:var(--mute)">กำลังโหลด…</td></tr></tbody>
     </table>
@@ -327,22 +386,29 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
       </div>
     </div>
     <div class="field">
-      <label>Engine ที่ใช้ (แสดงบนกราฟ + นับในสรุป)</label>
+      <label>TF ที่กันสัญญาณ (ระบบ Pullback เท่านั้น)</label>
       <div class="checks">
-        <label><input type="checkbox" data-eng="main" checked> State Machine BUY/SELL + MS Gate</label>
-        <label><input type="checkbox" data-eng="weak" checked> ~BUY / ~SELL (ฟอร์มครบ MS ยังไม่ยืนยัน)</label>
-        <label><input type="checkbox" data-eng="rej" checked> Rejection Candle + MS Gate</label>
-        <label><input type="checkbox" data-eng="pb" checked> Pullback Reversal (P-BUY/P-SELL)</label>
-        <label><input type="checkbox" data-eng="swing" checked> Swing Scalp</label>
-        <label><input type="checkbox" data-eng="crev" checked> Candle Reversal ททกต (1H เท่านั้น)</label>
+        <label><input type="checkbox" id="optHtfOn" checked> เปิดตัวกรอง TF ที่กัน</label>
+        <label><input type="checkbox" data-htf="1h" checked> 1H กันสัญญาณ TF15</label>
+        <label><input type="checkbox" data-htf="4h" checked> 4H กันสัญญาณ 1H</label>
+        <label><input type="checkbox" data-htf="1d" checked> D กันสัญญาณ 4H</label>
       </div>
+      <span class="hint">กัน P-SELL เมื่อ TF ที่กัน "ค้างขึ้น" (Stoch 9,3,3 เคยถึง Oversold ยังไม่ถึง Overbought) และ K เลย 50 แล้ว · กัน P-BUY เมื่อ "ค้างลง" และ K ต่ำกว่า 50 แล้ว</span>
+    </div>
+    <div class="field">
+      <label>แจ้งเตือนเมื่อเกิดสัญญาณ (เสียง + ป๊อปอัป)</label>
+      <div class="checks">
+        <label><input type="checkbox" data-alert="pb" checked> Pullback · P-BUY / P-SELL</label>
+        <label><input type="checkbox" data-alert="main" checked> State Machine · BUY / SELL + MS Gate</label>
+      </div>
+      <span class="hint">เลือกแจ้งเตือนได้ทั้งสองระบบ ไม่ขึ้นกับระบบที่กำลังดูอยู่</span>
     </div>
     <div class="field">
       <label for="optRR">Take Profit (TP2) = RR × ระยะ SL</label>
       <input type="number" id="optRR" min="0.5" max="10" step="0.5" value="2">
       <label class="checks"><span><input type="checkbox" id="optReqMS" checked> Require MS Shift for Signal (ตาม v7.8)</span></label>
       <label class="checks"><span><input type="checkbox" id="optSound" checked> เสียงเตือนเมื่อมีสัญญาณใหม่</span></label>
-      <span class="hint">ค่า Indicator ตรงกับ v7.8: RSI 14 (70/30), Stoch 9/3/3 (80/20), Pivot 5, Swing 10, Cross Window 3, Pullback 65/35 + ATR×1.5</span>
+      <span class="hint">ค่าที่ใช้วิเคราะห์ (ตรงกับ v7.8): RSI 14 (70/30), Stoch 9,3,3 (80/20), Pivot 5, Swing 10, Cross Window 3, Pullback 65/35 + ATR×1.5</span>
     </div>
   </div>
 </details>
@@ -377,6 +443,8 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <script>
 "use strict";
+// ส่งเหตุการณ์เข้า Google Analytics (ไม่ทำอะไรถ้ายังไม่ได้ใส่ GA_ID)
+const track = (name, params) => { try { if (window.gtag) window.gtag("event", name, params || {}); } catch(e){} };
 // ================================================================
 //  ENGINE START — Kindergarten Signal v7.8 (แปลงจาก Pine Script v6)
 // ================================================================
@@ -648,6 +716,109 @@ function runKG(allBars, tfId){
 //  ENGINE END
 // ================================================================
 
+// ================================================================
+//  HTF FILTER START — ตัวกรอง TF ใหญ่ (ใช้ร่วมกันทั้งแอพและบอท Telegram)
+//  TF ที่กัน: TF15 ← 1H · 1H ← 4H · 4H ← D (แต่ละ TF ใช้ TF ถัดไปตัวเดียว)
+//  P-SELL ถูกกัน ถ้า TF ที่กันยัง "ค้างขึ้น" (Stoch เคยถึง Oversold แล้วยังไม่ถึง Overbought) และ K เลยครึ่งทาง (> 50) แล้ว
+//  P-BUY  ถูกกัน ถ้า TF ที่กันยัง "ค้างลง"  (Stoch เคยถึง Overbought แล้วยังไม่ถึง Oversold) และ K เลยครึ่งทาง (< 50) แล้ว
+//  สถานะดู ณ เวลาที่แท่งสัญญาณปิด: แท่ง TF ที่กันที่ปิดแล้ว + แท่งที่กำลังก่อตัว (สร้างจากแท่ง TF เล็กจนถึงตอนนั้น)
+//  ไม่ใช้ข้อมูลอนาคต ผลย้อนหลังจึงตรงกับตอนใช้งานจริง
+// ================================================================
+const HTF = {
+  order: ["15m", "1h", "4h", "1d"],
+  sec:   { "15m":900, "1h":3600, "4h":14400, "1d":86400 },
+  label: { "15m":"TF15", "1h":"1H", "4h":"4H", "1d":"D" },
+  guard: { "15m":"1h", "1h":"4h", "4h":"1d" },   // TF ที่ใช้กันสัญญาณของแต่ละ TF
+  use:   { "1h":true, "4h":true, "1d":true },     // เปิด/ปิด TF ที่กัน
+  groups:{ pb:true }                              // กรองเฉพาะ P-BUY / P-SELL
+};
+const htfMid = () => (P.stoOB + P.stoOS) / 2;    // ครึ่งทางระหว่าง Oversold กับ Overbought (= 50)
+// สถานะ { s, k } กันฝั่งไหนได้บ้าง
+function htfBlocks(side, st){
+  if (!st || !isFinite(st.k)) return false;
+  return (side === "SELL" && st.s === 2 && st.k > htfMid()) || (side === "BUY" && st.s === 1 && st.k < htfMid());
+}
+// เตรียมสถานะค้างของแท่ง TF ใหญ่ที่ปิดแล้ว (เหมือน MTF Stoch ค้าง ใน v7.8)
+function htfPrep(bars){
+  const cb = bars.filter(b => b.closed !== false);
+  const n = cb.length, raw = new Array(n).fill(NaN);
+  for (let i = P.stoK - 1; i < n; i++){
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - P.stoK + 1; j <= i; j++){ if (cb[j].h > hh) hh = cb[j].h; if (cb[j].l < ll) ll = cb[j].l; }
+    raw[i] = hh === ll ? 50 : 100 * (cb[i].c - ll) / (hh - ll);
+  }
+  const K = smaArr(raw, P.stoSm), st = new Array(n).fill(0);
+  let s = 0;
+  for (let i = 0; i < n; i++){ if (K[i] >= P.stoOB) s = 1; if (K[i] <= P.stoOS) s = 2; st[i] = s; }
+  return { cb, K, st };
+}
+// K ของแท่ง TF ใหญ่ที่กำลังก่อตัว (pb) ต่อท้ายแท่งปิด cb[0..idx]
+function htfKWith(cb, idx, pb){
+  const seq = cb.slice(Math.max(0, idx - (P.stoK + P.stoSm)), idx + 1).concat([pb]);
+  const n = seq.length;
+  if (n < P.stoK + P.stoSm - 1) return NaN;
+  let s = 0;
+  for (let j = n - P.stoSm; j < n; j++){
+    let hh = -Infinity, ll = Infinity;
+    for (let k = j - P.stoK + 1; k <= j; k++){ if (seq[k].h > hh) hh = seq[k].h; if (seq[k].l < ll) ll = seq[k].l; }
+    s += hh === ll ? 50 : 100 * (seq[j].c - ll) / (hh - ll);
+  }
+  return s / P.stoSm;
+}
+// สถานะ TF ใหญ่ ณ เวลา T (วินาที UTC) → { s: 0 ไม่ค้าง / 1 ค้างลง / 2 ค้างขึ้น, k: Stoch K ตอนนั้น }
+function htfStateAt(T, prep, hSec, ltfBars){
+  const cb = prep.cb;
+  let lo = 0, hi = cb.length - 1, idx = -1;
+  while (lo <= hi){ const m = (lo + hi) >> 1; if (cb[m].t + hSec <= T){ idx = m; lo = m + 1; } else hi = m - 1; }
+  if (idx < 0) return { s: 0, k: NaN };
+  let s = prep.st[idx], k = prep.K[idx];
+  const hStart = Math.floor(T / hSec) * hSec;
+  if (T > hStart){
+    let h = -Infinity, l = Infinity, c = NaN, any = false;
+    for (const b of ltfBars){
+      if (b.t < hStart) continue;
+      if (b.t >= T) break;
+      any = true; if (b.h > h) h = b.h; if (b.l < l) l = b.l; c = b.c;
+    }
+    if (any){
+      k = htfKWith(cb, idx, { h, l, c });
+      if (k >= P.stoOB) s = 1; else if (k <= P.stoOS) s = 2;
+    }
+  }
+  return { s, k };
+}
+// ติด e.blk (TF ที่กัน) และ e.htf ({ tf: {s,k} }) ให้ทุกสัญญาณ · คืนสถานะ TF ที่กัน ณ เวลา nowT ของแต่ละ TF
+function applyHtfFilter(resByTf, barsByTf, nowT){
+  const prep = {}, live = {};
+  const getPrep = h => (h in prep) ? prep[h] : (prep[h] = (barsByTf[h] && barsByTf[h].length > P.stoK + P.stoSm) ? htfPrep(barsByTf[h]) : null);
+  for (const tf of HTF.order){
+    const r = resByTf[tf]; if (!r) continue;
+    const g = HTF.guard[tf];
+    const guards = g && HTF.use[g] && getPrep(g) ? [g] : [];
+    const ltf = barsByTf[tf] || [];
+    for (const e of r.events){
+      e.blk = null; e.htf = null;
+      if (!HTF.groups[e.group]) continue;
+      const T = e.t + HTF.sec[tf], states = {};
+      for (const h of guards){
+        const st = htfStateAt(T, getPrep(h), HTF.sec[h], ltf);
+        states[h] = st;
+        if (!e.blk && htfBlocks(e.side, st)) e.blk = h;
+      }
+      e.htf = states;
+    }
+    if (nowT){
+      const st = {};
+      for (const h of guards) st[h] = htfStateAt(nowT, getPrep(h), HTF.sec[h], ltf);
+      live[tf] = st;
+    }
+  }
+  return live;
+}
+// ================================================================
+//  HTF FILTER END
+// ================================================================
+
 // ---------------- data layer ----------------
 const TFS = [
   { id:"15m", label:"TF15", bin:"15m", td:"15min", sec:900,   fresh:4, mult:1,   tv:"15" },
@@ -661,11 +832,16 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem("kgxau." + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem("kgxau." + k, JSON.stringify(v)); } catch(e){} }
 };
-const S = Object.assign({ rr:2, reqMS:true, sound:true, tvSym:"TVC:GOLD",
+const S = Object.assign({ rr:2, reqMS:true, sound:true, tvSym:"TVC:GOLD", htfOn:true, htf:{ "1h":true, "4h":true, "1d":true },
   eng:{ main:true, weak:true, rej:true, pb:true, swing:true, crev:true } }, store.get("settings", {}));
 S.eng = Object.assign({ main:true, weak:true, rej:true, pb:true, swing:true, crev:true }, S.eng || {});
+S.htf = Object.assign({ "1h":true, "4h":true, "1d":true }, S.htf || {});
+if (S.sys !== "pb" && S.sys !== "main") S.sys = "pb";
+S.alert = Object.assign({ pb:true, main:true }, S.alert || {});
 // ใช้เฉพาะ Pullback Reversal (P-BUY / P-SELL) เป็นสัญญาณเทรด
 if (!S.pbOnly){ S.eng = { main:false, weak:false, rej:false, pb:true, swing:false, crev:false }; S.pbOnly = true; }
+// เพิ่มสัญญาณ State Machine BUY/SELL + MS Gate ร่วมกับ P-BUY / P-SELL
+if (!S.mainOn){ S.eng.main = true; S.mainOn = true; }
 ["key", "weekend", "v2", "v3", "src", "oaEnv", "oaPrice", "oaToken", "oaProxy"].forEach(k => delete S[k]);
 if (!S.tvSym || /^OANDA:/i.test(S.tvSym)) S.tvSym = "TVC:GOLD";
 
@@ -690,7 +866,7 @@ async function fetchBGold(tf){
       const r = await fetch(`${BG.host}/fapi/v1/indexPriceKlines?pair=XAUUSDT&${q}`, { cache:"no-store" });
       if (!r.ok) throw new Error("HTTP " + r.status);
       const j = await r.json();
-      if (!Array.isArray(j) || j.length < 60) throw new Error("index data empty");
+      if (!Array.isArray(j) || !j.length) throw new Error("index data empty");
       // Index หยุดนิ่งช่วงตลาดปิด → แท่งที่ไม่มีการเคลื่อนไหว (H = L) คือช่วงปิด ตัดออก ยกเว้นแท่งปัจจุบัน
       const bars = parseKlines(j);
       return bars.filter((b, i) => b.h !== b.l || i === bars.length - 1);
@@ -778,6 +954,7 @@ function onTick(px, ts, from){
     }
   }
   renderPrice(prev);
+  drawStoPanes(false);
   if (view === "kg" && cMain && DATA[chartTf]){
     const b = DATA[chartTf][DATA[chartTf].length - 1];
     try { sCandle.update({ time: b.t + TZ, open: b.o + OFFSET, high: b.h + OFFSET, low: b.l + OFFSET, close: b.c + OFFSET }); } catch(e){}
@@ -805,16 +982,25 @@ function stageTxt(st, side, sig){
   if (side === "BUY") return st === 3 ? ["รอ K x D", "buy"] : st === 2 ? ["รอ OS2", "neu"] : st === 1 ? ["Low1 OK | รอ OB", "neu"] : ["รอ OS", "neu"];
   return st === 3 ? ["รอ K x D", "sell"] : st === 2 ? ["รอ OB2", "neu"] : st === 1 ? ["High1 OK | รอ OS", "neu"] : ["รอ OB", "neu"];
 }
-const enabledEv = e => S.eng[e.group];
+// ระบบที่กำลังดู (แยกกันสมบูรณ์: pb = Pullback, main = State Machine + MS Gate)
+const viewEv = e => e.group === S.sys && !e.blk;
+const blockedEv = e => e.group === S.sys && !!e.blk;
+const alertEv = e => !!S.alert[e.group] && !e.blk;
+const SYS = {
+  pb:   { title:"Pullback", buy:"P-BUY", sell:"P-SELL", hint:"จับจังหวะกลับตัวหลังราคายืดไกลจาก EMA50 · มีตัวกรอง TF ที่กัน (1H→TF15 · 4H→1H · D→4H)" },
+  main: { title:"State Machine", buy:"BUY", sell:"SELL", hint:"ฟอร์ม Stoch 4 ขั้น (OS→OB→OS→K ตัด D) และต้องผ่าน MS Gate (โครงสร้างตลาดเปิดทาง)" }
+};
+const HSYM = s => s === 1 ? "▼" : s === 2 ? "▲" : "–";
+let HTF_LIVE = {};
 
 // ---------------- verdict ----------------
 function computeVerdict(){
-  // สรุปจากสัญญาณ Pullback (P-BUY / P-SELL) ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF และคะแนน Win %
+  // สรุปจากสัญญาณที่ยังสดของระบบที่เลือก (Pullback หรือ State Machine — ไม่ปนกัน) — น้ำหนักตาม TF และคะแนน Win %
   let buy = 0, sell = 0; const reasons = [], cands = [];
   for (const id of ["4h", "1h", "15m"]){
     const r = RES[id], tf = TFMAP[id]; if (!r || !r.last) continue;
     const lastI = r.n - 1;
-    const fresh = r.events.filter(e => enabledEv(e) && lastI - e.i < tf.fresh);
+    const fresh = r.events.filter(e => viewEv(e) && lastI - e.i < tf.fresh);
     for (const side of ["BUY", "SELL"]){
       const best = fresh.filter(e => e.side === side).sort((a, b) => b.wp - a.wp || b.i - a.i)[0];
       if (!best) continue;
@@ -824,8 +1010,12 @@ function computeVerdict(){
       reasons.push({ tf: tf.label, side, chip: side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${best.wp}%` });
       cands.push({ e: best, s });
     }
+    for (const e of r.events.filter(e => blockedEv(e) && lastI - e.i < tf.fresh).slice(-2))
+      reasons.push({ tf: tf.label, side: "", chip: "กรอง", txt: `${e.label} ไม่นับ · ${HTF.label[e.blk]} ${e.side === "SELL" ? "ค้างขึ้น" : "ค้างลง"} K ${Math.round(e.htf[e.blk].k)} เลยครึ่งแล้ว` });
     const L = r.last;
-    reasons.push({ tf: tf.label, side: "", chip: "INFO", txt: `MS ${L.msTrend} · ยืดจาก EMA50 ${L.ext >= 0 ? "+" : ""}${L.ext.toFixed(1)} ATR` });
+    reasons.push({ tf: tf.label, side: "", chip: "INFO", txt: S.sys === "pb"
+      ? `MS ${L.msTrend} · ยืดจาก EMA50 ${L.ext >= 0 ? "+" : ""}${L.ext.toFixed(1)} ATR`
+      : `MS ${L.msTrend} · Gate ${L.gateBuy && L.gateSell ? "เปิดทั้งสองทาง" : L.gateBuy ? "เปิด BUY" : L.gateSell ? "เปิด SELL" : "ปิด"}` });
   }
   const score = buy - sell;
   let word = "WAIT";
@@ -838,12 +1028,37 @@ function computeVerdict(){
 }
 
 // ---------------- render ----------------
-function pbRow(side, o){
+function htfBlocker(live, side){
+  if (!live) return null;
+  for (const h of HTF.order) if (h in live && htfBlocks(side, live[h])) return h;
+  return null;
+}
+function pbRow(side, o, live){
   const items = [[side === "BUY" ? "Stoch≤35" : "Stoch≥65", o.zone], ["ATR×1.5", o.ext], [side === "BUY" ? "Hammer" : "Star", o.rej]];
-  const met = items.filter(x => x[1]).length;
-  const ticks = items.map(([n, ok]) => `<span class="ck${ok ? " ok" : ""}">${ok ? "✓" : "✗"} ${n}</span>`).join("");
-  const st = met === 3 ? `<span class="chip ${side === "BUY" ? "buy" : "sell"}">รอ K×D · ${Math.round(o.potential)}%</span>` : `<span class="chip neu">${met}/3</span>`;
+  const met = items.filter(x => x[1]).length, blk = htfBlocker(live, side);
+  const ticks = items.map(([n, ok]) => `<span class="ck${ok ? " ok" : ""}">${ok ? "✓" : "✗"} ${n}</span>`).join("")
+    + (live && Object.keys(live).length ? `<span class="ck${blk ? "" : " ok"}">${blk ? "✗" : "✓"} ${HTF.label[Object.keys(live)[0]]}</span>` : "");
+  const st = met === 3 && blk ? `<span class="chip gold">รอ ${HTF.label[blk]} ${side === "SELL" ? "ขึ้นถึง OB" : "ลงถึง OS"}</span>`
+    : met === 3 ? `<span class="chip ${side === "BUY" ? "buy" : "sell"}">รอ K×D · ${Math.round(o.potential)}%</span>` : `<span class="chip neu">${met}/3${blk ? " · " + HTF.label[blk] + " กัน" : ""}</span>`;
   return `<div class="row pbrow"><span class="k">P-${side}</span><span class="v pbv"><span class="cks">${ticks}</span>${st}</span></div>`;
+}
+function htfRow(live){
+  const ks = live ? Object.keys(live) : [];
+  if (!ks.length) return `<div class="row"><span class="k">TF ที่กัน</span><span class="v"><span class="chip neu">${S.htfOn ? "ปิดอยู่" : "ปิดตัวกรอง"}</span></span></div>`;
+  const chips = ks.map(h => {
+    const st = live[h], s = st.s, past = htfBlocks("SELL", st) || htfBlocks("BUY", st);
+    const cls = past ? (s === 2 ? "buy" : "sell") : "neu";
+    const what = s === 2 ? "ค้างขึ้น" : s === 1 ? "ค้างลง" : "ไม่ค้าง";
+    const note = s === 0 ? "" : past ? (s === 2 ? " · กัน P-SELL" : " · กัน P-BUY") : " · ยังไม่เลยครึ่ง";
+    return `<span class="chip ${cls}">${HTF.label[h]} ${HSYM(s)} ${what} · K ${isFinite(st.k) ? Math.round(st.k) : "–"}${note}</span>`; }).join(" ");
+  return `<div class="row pbrow"><span class="k">TF ที่กัน</span><span class="v pbv">${chips}</span></div>`;
+}
+function smRows(L){
+  const [bt, bc] = stageTxt(L.bs, "BUY", L.buySig), [st, sc] = stageTxt(L.ss, "SELL", L.sellSig);
+  const gate = [L.gateBuy ? `<span class="chip buy">เปิด BUY</span>` : "", L.gateSell ? `<span class="chip sell">เปิด SELL</span>` : ""].filter(Boolean).join(" ") || `<span class="chip neu">ปิด</span>`;
+  return `<div class="row"><span class="k">BUY (State)</span><span class="v"><span class="chip ${bc}">${bt}</span></span></div>
+        <div class="row"><span class="k">SELL (State)</span><span class="v"><span class="chip ${sc}">${st}</span></span></div>
+        <div class="row"><span class="k">MS Gate</span><span class="v">${gate}</span></div>`;
 }
 function pbCount(o){ return [o.zone, o.ext, o.rej].filter(Boolean).length; }
 
@@ -855,9 +1070,9 @@ function renderCards(){
     const kz = L.k >= P.pbOB ? ["sell", `${f2(L.k)} · โซน P-SELL`] : L.k <= P.pbOS ? ["buy", `${f2(L.k)} · โซน P-BUY`] : ["neu", f2(L.k)];
     const ec = L.ext >= P.pbAtr ? "sell" : -L.ext >= P.pbAtr ? "buy" : "neu";
     const mc = L.msTrend === "BULLISH" ? "buy" : L.msTrend === "BEARISH" ? "sell" : "neu";
-    const evs = r.events.filter(enabledEv);
+    const evs = r.events.filter(viewEv);
     const le = evs[evs.length - 1];
-    let lastHtml = `<div class="last empty">ยังไม่มี P-BUY / P-SELL ในข้อมูลช่วงนี้</div>`;
+    let lastHtml = `<div class="last empty">ยังไม่มีสัญญาณในข้อมูลช่วงนี้</div>`;
     if (le){
       const ago = r.n - 1 - le.i, fresh = ago < tf.fresh;
       lastHtml = `<div class="last${fresh ? " fresh" : ""}">
@@ -869,12 +1084,19 @@ function renderCards(){
     }
     el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span><span class="when">ปิดแท่ง ${fmtT(L.t + tf.sec)}</span></div>
       <div class="rows">
+        ${S.sys === "pb" ? `
         <div class="row"><span class="k">Stoch K</span><span class="v"><span class="chip ${kz[0]}">${kz[1]}</span></span></div>
         <div class="row"><span class="k">ยืดจาก EMA50</span><span class="v"><span class="chip ${ec}">${L.ext >= 0 ? "+" : ""}${L.ext.toFixed(2)} ATR</span></span></div>
-        ${pbRow("BUY", L.pbB)}
-        ${pbRow("SELL", L.pbS)}
+        ${htfRow(HTF_LIVE[id])}
+        ${pbRow("BUY", L.pbB, HTF_LIVE[id])}
+        ${pbRow("SELL", L.pbS, HTF_LIVE[id])}
         <div class="row"><span class="k">MS Trend</span><span class="v"><span class="chip ${mc}">${L.msTrend}</span></span></div>
-        <div class="row"><span class="k">RSI</span><span class="v num">${f2(L.rsi)}</span></div>
+        <div class="row"><span class="k">RSI</span><span class="v num">${f2(L.rsi)}</span></div>` : `
+        <div class="row"><span class="k">Zone</span><span class="v"><span class="chip ${L.zone === "OVERBOUGHT" ? "sell" : L.zone === "OVERSOLD" ? "buy" : "neu"}">${L.zone}</span></span></div>
+        <div class="row"><span class="k">MS Trend</span><span class="v"><span class="chip ${mc}">${L.msTrend}</span></span></div>
+        ${smRows(L)}
+        <div class="row"><span class="k">Win Prob</span><span class="v num" style="color:${L.wp >= 70 ? "var(--buy)" : L.wp >= 50 ? "var(--gold)" : "var(--sell)"}">${Math.round(L.wp)}% ${L.wpDir}</span></div>
+        <div class="row"><span class="k">Stoch K / D · RSI</span><span class="v num">${f2(L.k)} / ${f2(L.d)} · ${f2(L.rsi)}</span></div>`}
       </div>${lastHtml}`;
   }
 }
@@ -888,7 +1110,8 @@ function renderVerdict(){
   }
   const v = computeVerdict();
   box.className = "vword " + (v.word === "BUY" ? "v-buy" : v.word === "SELL" ? "v-sell" : "v-wait");
-  box.innerHTML = `<b>${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}</b><span class="sub num">${v.conflict ? "P-BUY / P-SELL ขัดกัน" : "คะแนน " + (v.score >= 0 ? "+" : "") + v.score.toFixed(1)}</span>`;
+  const sy = SYS[S.sys], wl = v.word === "BUY" ? sy.buy : v.word === "SELL" ? sy.sell : "รอจังหวะ";
+  box.innerHTML = `<b>${wl}</b><span class="sub num">${v.conflict ? sy.buy + " / " + sy.sell + " ขัดกัน" : "คะแนน " + (v.score >= 0 ? "+" : "") + v.score.toFixed(1)}</span>`;
   $("vNeedle").style.left = (50 + Math.max(-1, Math.min(1, v.score / 4)) * 48) + "%";
   if (v.plan){
     const e = v.plan;
@@ -898,8 +1121,11 @@ function renderVerdict(){
       <div class="c"><span class="lbl">TP1 1R</span><b style="color:var(--buy)">${f2(e.tp1)}</b></div>
       <div class="c"><span class="lbl">TP2 ${P.rr}R</span><b style="color:var(--buy)">${f2(e.tp2)}</b></div></div>`;
   } else {
-    const pend = ["4h", "1h", "15m"].map(id => RES[id] && RES[id].last ? `${TFMAP[id].label}: P-BUY ${pbCount(RES[id].last.pbB)}/3 · P-SELL ${pbCount(RES[id].last.pbS)}/3 เงื่อนไข` : "").filter(Boolean);
-    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มี P-BUY / P-SELL สดใน 3 TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
+    const pend = ["4h", "1h", "15m"].map(id => { const L = RES[id] && RES[id].last; if (!L) return "";
+      const txt = S.sys === "main" ? `BUY ${stageTxt(L.bs, "BUY", L.buySig)[0]} · SELL ${stageTxt(L.ss, "SELL", L.sellSig)[0]}`
+        : `P-BUY ${pbCount(L.pbB)}/3 · P-SELL ${pbCount(L.pbS)}/3 เงื่อนไข`;
+      return `${TFMAP[id].label}: ${txt}`; }).filter(Boolean);
+    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มี ${SYS[S.sys].buy} / ${SYS[S.sys].sell} สดใน 3 TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
   }
   $("vReasons").innerHTML = v.reasons.length ? v.reasons.map(r => `<li><span class="tfk">${r.tf}</span><span class="chip ${sideCls(r.side)}">${r.chip}</span><span>${esc(r.txt)}</span></li>`).join("") : `<li style="color:var(--mute)">—</li>`;
   $("vTime").textContent = "อัปเดต " + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date());
@@ -910,10 +1136,12 @@ function renderVerdict(){
 function renderLog(){
   const flt = $("logFilter").value;
   const all = [];
-  for (const id of ["15m", "1h", "4h"]) if (RES[id]) all.push(...RES[id].events.filter(enabledEv));
+  for (const id of ["15m", "1h", "4h"]) if (RES[id]) all.push(...RES[id].events.filter(viewEv));
   const rows = all.filter(e => flt === "all" || e.tf === flt).sort((a, b) => b.t - a.t || b.i - a.i).slice(0, 40);
-  $("logBody").innerHTML = rows.length ? rows.map(e => `<tr><td>${fmtT(e.t)}</td><td>${TFMAP[e.tf].label}</td><td><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span></td>
-    <td class="n">${f2(e.entry)}</td><td class="n" style="color:var(--sell)">${f2(e.sl)}</td><td class="n">${f2(e.tp1)}</td><td class="n" style="color:var(--buy)">${f2(e.tp2)}</td><td class="n">${e.wp}%</td></tr>`).join("")
+  $("logBody").innerHTML = rows.length ? rows.map(e => `<tr>
+    <td class="c-time">${fmtT(e.t)}</td><td class="c-tf">${TFMAP[e.tf].label}</td><td class="c-sig"><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span></td>
+    <td class="n" data-l="Entry">${f2(e.entry)}</td><td class="n" data-l="SL" style="color:var(--sell)">${f2(e.sl)}</td><td class="n" data-l="TP1">${f2(e.tp1)}</td><td class="n" data-l="TP2" style="color:var(--buy)">${f2(e.tp2)}</td>
+    <td class="n c-wp" data-l="Win %">${e.wp}%</td></tr>`).join("")
     : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณ</td></tr>`;
 }
 
@@ -977,11 +1205,14 @@ function renderChart(){
   const idxMap = new Map(r.bars.map((b, i) => [b.t, i]));
   sEma.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(r.ema50[i]) ? { time:b.t + TZ, value:r.ema50[i] } : { time:b.t + TZ }; }));
   sK.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(r.K[i]) ? { time:b.t + TZ, value:r.K[i] } : { time:b.t + TZ }; }));
-  sD.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(r.D[i]) ? { time:b.t + TZ, value:r.D[i] } : { time:b.t + TZ }; }));
-  const evs = r.events.filter(enabledEv);
+  const dShow = smaArr(r.K, CHART_STO.smoothD);   // เส้น D ของกราฟ = 9,3,3
+  sD.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(dShow[i]) ? { time:b.t + TZ, value:dShow[i] } : { time:b.t + TZ }; }));
+  const evs = r.events.filter(viewEv);
   const markers = evs.map(e => { const [color, shape] = MK[e.group][e.side];
     const txt = ["main", "weak", "pb"].includes(e.group) ? `${e.label} ${e.wp}%` : e.label;
     return { time: e.t + TZ, position: e.side === "BUY" ? "belowBar" : "aboveBar", color, shape, text: txt }; })
+    .concat(r.events.filter(blockedEv).map(e => ({ time: e.t + TZ, position: e.side === "BUY" ? "belowBar" : "aboveBar",
+      color: "rgba(141,153,179,.75)", shape: "circle", text: `${e.label} ✕${HTF.label[e.blk]}` })))
     .sort((a, b) => a.time - b.time);
   sCandle.setMarkers(markers);
   priceLines.forEach(pl => sCandle.removePriceLine(pl)); priceLines = [];
@@ -996,6 +1227,8 @@ function renderChart(){
 }
 
 // ---------------- TradingView live widget ----------------
+// Stochastic ที่แสดงบนกราฟ (แยกจากค่าที่ใช้วิเคราะห์ ซึ่งคือ 9,3,3 ใน P)
+const CHART_STO = { k: 9, smoothK: 3, smoothD: 3 };   // Stoch บนกราฟ 9,3,3 = ค่าเดียวกับที่ใช้คำนวณสัญญาณ
 let tvLoaded = false, tvLoading = false, tvTf = null, tv3Made = false;
 const tvQueue = [];
 function tvWidget(containerId, tfId, compact){
@@ -1004,7 +1237,57 @@ function tvWidget(containerId, tfId, compact){
     theme:"dark", style:"1", locale:"th_TH", container_id:containerId, allow_symbol_change:false,
     hide_side_toolbar:compact, hide_top_toolbar:false, withdateranges:!compact, details:false,
     backgroundColor:"#111725", gridColor:"rgba(35,44,64,.6)",
-    studies:["Stochastic@tv-basicstudies"] });
+    studies:[] });   // Stochastic 9,3,3 วาดเองด้านล่างกราฟ (วิดเจ็ต TradingView ล็อกค่าไว้ที่ 14,3,3)
+}
+// ---------- Stochastic 9,3,3 ใต้กราฟ TradingView (คำนวณจากแท่งเดียวกับสัญญาณ รวมแท่งที่กำลังก่อตัว) ----------
+const stoPanes = {};
+function stochShow(bars){
+  const n = bars.length, raw = new Array(n).fill(NaN), L = CHART_STO.k;
+  for (let i = L - 1; i < n; i++){
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - L + 1; j <= i; j++){ if (bars[j].h > hh) hh = bars[j].h; if (bars[j].l < ll) ll = bars[j].l; }
+    raw[i] = hh === ll ? 50 : 100 * (bars[i].c - ll) / (hh - ll);
+  }
+  const K = smaArr(raw, CHART_STO.smoothK);
+  return { K, D: smaArr(K, CHART_STO.smoothD) };
+}
+function stoPane(id){
+  if (stoPanes[id]) return stoPanes[id];
+  const el = $(id); if (!el || !window.LightweightCharts) return null;
+  el.innerHTML = `<div class="tvsto-h"><span>Stoch ${CHART_STO.k},${CHART_STO.smoothK},${CHART_STO.smoothD}</span><span data-v></span></div><div class="tvsto-c"></div>`;
+  const ch = LightweightCharts.createChart(el.querySelector(".tvsto-c"), { autoSize:true,
+    layout:{ background:{ type:"solid", color:"#111725" }, textColor:"#7f8ba3", fontFamily:"JetBrains Mono, monospace", fontSize:10 },
+    grid:{ vertLines:{ color:"#1a2133" }, horzLines:{ color:"#1a2133" } },
+    rightPriceScale:{ borderColor:"#232c40", minimumWidth:56, scaleMargins:{ top:.08, bottom:.06 } },
+    timeScale:{ borderColor:"#232c40", timeVisible:true, secondsVisible:false, rightOffset:3 }, crosshair:{ mode:0 } });
+  const fix = () => ({ priceRange:{ minValue:0, maxValue:100 } });
+  const k = ch.addLineSeries({ color:"#4aa3ff", lineWidth:1.5, priceLineVisible:false, lastValueVisible:true, autoscaleInfoProvider:fix });
+  const d = ch.addLineSeries({ color:"#ff9f43", lineWidth:1.5, priceLineVisible:false, lastValueVisible:true, autoscaleInfoProvider:fix });
+  k.createPriceLine({ price:P.stoOB, color:"rgba(239,83,80,.6)", lineWidth:1, lineStyle:2, axisLabelVisible:false, title:"" });
+  k.createPriceLine({ price:P.stoOS, color:"rgba(47,191,113,.6)", lineWidth:1, lineStyle:2, axisLabelVisible:false, title:"" });
+  k.createPriceLine({ price:50, color:"rgba(141,153,179,.35)", lineWidth:1, lineStyle:3, axisLabelVisible:false, title:"" });
+  return (stoPanes[id] = { ch, k, d, el, tf:null });
+}
+function drawSto(id, tfId){
+  const bars = DATA[tfId]; if (!bars || !bars.length) return;
+  const p = stoPane(id); if (!p) return;
+  const { K, D } = stochShow(bars), kd = [], dd = [];
+  for (let i = 0; i < bars.length; i++){
+    const t = bars[i].t + TZ;
+    kd.push(isNaN(K[i]) ? { time:t } : { time:t, value:K[i] });
+    dd.push(isNaN(D[i]) ? { time:t } : { time:t, value:D[i] });
+  }
+  p.k.setData(kd); p.d.setData(dd);
+  if (p.tf !== tfId){ p.ch.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 110), to: bars.length + 3 }); p.tf = tfId; }
+  const n = bars.length - 1;
+  p.el.querySelector("[data-v]").innerHTML = `${TFMAP[tfId].label} · K <b style="color:#4aa3ff">${f2(K[n])}</b> · D <b style="color:#ff9f43">${f2(D[n])}</b>`;
+}
+let lastStoDraw = 0;
+function drawStoPanes(force){
+  if (!force && Date.now() - lastStoDraw < 3000) return;
+  lastStoDraw = Date.now();
+  if (view === "tv") drawSto("tvSto", chartTf);
+  else if (view === "tv3") ["15m", "1h", "4h"].forEach(id => drawSto("tvSto_" + id, id));
 }
 function withTV(fn){
   if (tvLoaded) return fn();
@@ -1039,12 +1322,13 @@ function checkNewSignals(first){
   for (const id of ["15m", "1h", "4h"]){
     const r = RES[id]; if (!r || !r.n) continue;
     const lastT = r.bars[r.n - 1].t;
-    const news = r.events.filter(e => enabledEv(e) && e.t === lastT);
+    const news = r.events.filter(e => alertEv(e) && e.t === lastT);
     const key = "bgold:" + id;
     if (!first && news.length && seen[key] !== lastT){
       for (const e of news){
         const msg = `KG ${TFMAP[id].label} · ${e.label} @ ${f2(e.entry)} | SL ${f2(e.sl)} | TP ${f2(e.tp2)}`;
         toast(msg);
+        track("signal_alert", { timeframe: TFMAP[id].label, signal: e.label });
         try { if (window.Notification && Notification.permission === "granted") new Notification("KG Signal XAUUSD", { body: msg }); } catch(e){}
       }
       beep();
@@ -1054,14 +1338,19 @@ function checkNewSignals(first){
   store.set("seen", seen);
 }
 
+// ล้างบันทึกผลเดิมที่เคยเก็บไว้ในเครื่อง
+try { localStorage.removeItem("kgxau.journal"); } catch(e){}
+
 // ---------------- main loop ----------------
 let firstRun = true, busy = false;
 function compute(){
   P.rr = +S.rr || 2; P.requireMS = !!S.reqMS;
   computedOffset = OFFSET;
   for (const tf of TFS) if (DATA[tf.id]) RES[tf.id] = runKG(DATA[tf.id].map(shiftBar), tf.id);
+  HTF.use = { "1h": S.htfOn && S.htf["1h"], "4h": S.htfOn && S.htf["4h"], "1d": S.htfOn && S.htf["1d"] };
+  HTF_LIVE = applyHtfFilter(RES, DATA, Math.floor(Date.now() / 1000));
 }
-function renderAll(){ renderCards(); renderVerdict(); renderLog(); renderChart(); }
+function renderAll(){ renderCards(); renderVerdict(); renderLog(); renderChart(); drawStoPanes(true); }
 function setStatus(txt, state){ $("status").textContent = txt; $("liveDot").className = "dot " + (state || ""); }
 function banner(html, cls){ $("bannerBox").innerHTML = html ? `<div class="banner ${cls || ""}">${html}</div>` : ""; }
 function clearResults(){ for (const k in DATA) delete DATA[k]; for (const k in RES) delete RES[k]; fitted = {}; }
@@ -1100,7 +1389,10 @@ function saveSettings(){ store.set("settings", S); }
 function applySettingsUI(){
   $("optTvSym").value = S.tvSym; applyTvSym();
   $("optRR").value = S.rr; $("optReqMS").checked = S.reqMS; $("optSound").checked = S.sound;
-  document.querySelectorAll("[data-eng]").forEach(c => c.checked = !!S.eng[c.dataset.eng]);
+  document.querySelectorAll("[data-alert]").forEach(c => c.checked = !!S.alert[c.dataset.alert]);
+  applySys();
+  $("optHtfOn").checked = !!S.htfOn;
+  document.querySelectorAll("[data-htf]").forEach(c => { c.checked = !!S.htf[c.dataset.htf]; c.disabled = !S.htfOn; });
 }
 function applyTvSym(){
   $("tvSymLbl").textContent = S.tvSym;
@@ -1116,24 +1408,42 @@ $("optTvSym").onchange = e => {
 $("optRR").onchange = e => { S.rr = Math.max(0.5, +e.target.value || 2); onCalcSettingChange(); };
 $("optReqMS").onchange = e => { S.reqMS = e.target.checked; onCalcSettingChange(); };
 $("optSound").onchange = e => { S.sound = e.target.checked; saveSettings(); };
-document.querySelectorAll("[data-eng]").forEach(c => c.onchange = () => { S.eng[c.dataset.eng] = c.checked; onCalcSettingChange(); });
+$("optHtfOn").onchange = e => { S.htfOn = e.target.checked; document.querySelectorAll("[data-htf]").forEach(c => c.disabled = !S.htfOn); onCalcSettingChange(); };
+document.querySelectorAll("[data-htf]").forEach(c => c.onchange = () => { S.htf[c.dataset.htf] = c.checked; onCalcSettingChange(); });
+document.querySelectorAll("[data-alert]").forEach(c => c.onchange = () => { S.alert[c.dataset.alert] = c.checked; saveSettings(); });
+function applySys(){
+  const sy = SYS[S.sys];
+  $("segSys").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.sys === S.sys));
+  $("sysHint").textContent = sy.hint;
+  $("vTitle").textContent = `สรุป ${sy.title} 3 TF`;
+  $("mBuy").textContent = sy.buy; $("mSell").textContent = sy.sell;
+  document.querySelectorAll(".lg-pb").forEach(x => x.hidden = S.sys !== "pb");
+  document.querySelectorAll(".lg-main").forEach(x => x.hidden = S.sys !== "main");
+}
+$("segSys").onclick = e => {
+  const b = e.target.closest("button"); if (!b || b.dataset.sys === S.sys) return;
+  S.sys = b.dataset.sys; saveSettings(); applySys(); track("signal_system", { system: S.sys });
+  if (RES["15m"]) renderAll(); else { renderLog(); }
+};
 $("logFilter").onchange = renderLog;
 $("btnRefresh").onclick = () => refresh(true);
 $("btnNotify").onclick = async () => {
   beep();
   if (!window.Notification){ toast("เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน — ใช้เสียงและป๊อปอัปในหน้าแทน"); return; }
-  try { const p = await Notification.requestPermission(); toast(p === "granted" ? "เปิดแจ้งเตือนแล้ว — เปิดหน้านี้ทิ้งไว้เพื่อรับสัญญาณ" : "ไม่ได้รับอนุญาตแจ้งเตือน — ยังมีเสียงและป๊อปอัปในหน้า"); }
+  try { const p = await Notification.requestPermission(); track("notify_enable", { result: p }); toast(p === "granted" ? "เปิดแจ้งเตือนแล้ว — เปิดหน้านี้ทิ้งไว้เพื่อรับสัญญาณ" : "ไม่ได้รับอนุญาตแจ้งเตือน — ยังมีเสียงและป๊อปอัปในหน้า"); }
   catch(e){ toast("เปิดแจ้งเตือนไม่ได้"); }
 };
 $("segTf").onclick = e => {
   const b = e.target.closest("button"); if (!b) return;
   chartTf = b.dataset.tf;
+  track("chart_timeframe", { timeframe: TFMAP[chartTf].label });
   $("segTf").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  renderChart(); if (view === "tv") showTV();
+  renderChart(); if (view === "tv") showTV(); drawStoPanes(true);
 };
 $("segView").onclick = e => {
   const b = e.target.closest("button"); if (!b) return;
   view = b.dataset.view;
+  track("chart_view", { view });
   $("segView").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
   applyView();
 };
@@ -1142,6 +1452,7 @@ function applyView(){
   $("tvNote").hidden = view === "kg";
   $("segTf").querySelectorAll("button").forEach(x => x.disabled = view === "tv3");
   if (view === "tv") showTV(); else if (view === "tv3") showTV3(); else renderChart();
+  drawStoPanes(true);
   store.set("view", view);
 }
 
@@ -1151,7 +1462,7 @@ const isStandalone = () => window.matchMedia("(display-mode: standalone)").match
 const onWeb = /^https?:$/.test(location.protocol);
 function syncInstallBtn(){ $("btnInstall").hidden = isStandalone(); }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; syncInstallBtn(); });
-window.addEventListener("appinstalled", () => { installEvt = null; syncInstallBtn(); toast("ติดตั้ง KG Signal XAUUSD แล้ว — เปิดได้จากไอคอนบนหน้าจอ"); });
+window.addEventListener("appinstalled", () => { track("app_installed"); installEvt = null; syncInstallBtn(); toast("ติดตั้ง KG Signal XAUUSD แล้ว — เปิดได้จากไอคอนบนหน้าจอ"); });
 if (onWeb && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 function installSteps(){
   const ua = navigator.userAgent;
@@ -1163,6 +1474,7 @@ function installSteps(){
   return `<ol class="isteps"><li>เปิดหน้านี้ใน <b>Chrome</b> หรือ <b>Edge</b></li><li>กดไอคอน <b>ติดตั้ง</b> ท้ายช่องที่อยู่เว็บ (รูปจอมีลูกศรลง)</li><li>หรือเมนู <b>⋮</b> → <b>ติดตั้ง KG Signal XAUUSD</b></li></ol>`;
 }
 $("btnInstall").onclick = async () => {
+  track("install_click", { prompt: installEvt ? "native" : "guide" });
   if (installEvt){
     installEvt.prompt();
     const r = await installEvt.userChoice.catch(() => null);
@@ -1182,10 +1494,11 @@ function signalSummary(){
   const px = $("price").textContent; if (px && px !== "—") lines.push(`ราคา XAUUSD ${px}`);
   if (RES["15m"] || RES["1h"] || RES["4h"]){
     const v = computeVerdict();
-    lines.push(`สรุป Pullback 3 TF: ${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}`);
+    const sy = SYS[S.sys];
+    lines.push(`ระบบ ${sy.title} · สรุป 3 TF: ${v.word === "BUY" ? sy.buy : v.word === "SELL" ? sy.sell : "รอจังหวะ"}`);
     for (const id of ["15m", "1h", "4h"]){
       const r = RES[id], tf = TFMAP[id]; if (!r) continue;
-      const e = r.events.filter(enabledEv).filter(x => r.n - 1 - x.i < tf.fresh).slice(-1)[0];
+      const e = r.events.filter(viewEv).filter(x => r.n - 1 - x.i < tf.fresh).slice(-1)[0];
       lines.push(e ? `${tf.label}: ${e.label} ${e.wp}% · Entry ${f2(e.entry)} · SL ${f2(e.sl)} · TP ${f2(e.tp2)}` : `${tf.label}: ยังไม่มีสัญญาณสด`);
     }
   }
@@ -1194,7 +1507,7 @@ function signalSummary(){
 }
 function buildShare(){
   const url = appUrl();
-  const text = $("shareWithSignal").checked ? signalSummary() : "KG Signal XAUUSD — สัญญาณ P-BUY / P-SELL ทองคำ TF15 / 1H / 4H เรียลไทม์\nเทรดง่ายๆ เด็กอนุบาลก็เทรดได้";
+  const text = $("shareWithSignal").checked ? signalSummary() : "KG Signal XAUUSD — สัญญาณ BUY / SELL และ P-BUY / P-SELL ทองคำ TF15 / 1H / 4H เรียลไทม์\nเทรดง่ายๆ เด็กอนุบาลก็เทรดได้";
   $("shareText").value = onWeb ? text + "\n" + url : text;
   $("shareUrl").value = url;
   $("shareWarn").hidden = onWeb;
@@ -1205,13 +1518,16 @@ function buildShare(){
 }
 $("btnShare").onclick = () => { $("shareNative").hidden = !navigator.share; buildShare(); $("dlgShare").showModal(); };
 $("shareWithSignal").onchange = buildShare;
+$("shareLine").addEventListener("click", () => track("share", { method: "line", with_signal: $("shareWithSignal").checked }));
+$("shareFb").addEventListener("click", () => track("share", { method: "facebook" }));
 $("shareNative").onclick = async () => {
   const d = buildShare();
-  try { await navigator.share(onWeb ? d : { title: d.title, text: d.text }); $("dlgShare").close(); }
+  try { await navigator.share(onWeb ? d : { title: d.title, text: d.text }); track("share", { method: "system", with_signal: $("shareWithSignal").checked }); $("dlgShare").close(); }
   catch(e){ if (e && e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองคัดลอกข้อความแทน"); }
 };
 $("shareCopy").onclick = async () => {
   const t = $("shareText").value;
+  track("share", { method: "copy", with_signal: $("shareWithSignal").checked });
   try { await navigator.clipboard.writeText(t); toast("คัดลอกข้อความแล้ว"); }
   catch(e){ $("shareText").focus(); $("shareText").select(); toast("เลือกข้อความไว้แล้ว กด Ctrl+C / คัดลอก"); }
 };
