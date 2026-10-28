@@ -197,7 +197,7 @@ details[open].panel > summary::after{content:"−"}
 .ck.ok{color:var(--text)}
 .data-box{grid-column:1/-1;display:grid;gap:16px;grid-template-columns:1fr;padding-bottom:16px;border-bottom:1px solid var(--line)}
 @media(min-width:800px){.data-box{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.field input[type=password]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+.field input[type=password],.field input[type=url]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
 .steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13px}
 .steps a{color:var(--gold)}
 .hint a{color:var(--gold)}
@@ -218,6 +218,22 @@ dialog.sheet[open]{display:flex;flex-direction:column;gap:12px}
 .share-fb{background:#1877f2;border-color:#1877f2;color:#fff;font-weight:600}
 #shareUrl{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;font:12.5px var(--f-mono)}
 .inst-icon{display:flex;gap:12px;align-items:center}
+.push-st{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2);font-size:13px;line-height:1.5}
+.push-st .dot{flex:none;margin-top:5px}
+.push-st.on{border-color:rgba(38,166,154,.55)}
+.push-st.on .dot{background:#26a69a;box-shadow:0 0 0 3px rgba(38,166,154,.18)}
+.push-st.off .dot{background:var(--mute)}
+.push-st.warn{border-color:rgba(239,83,80,.5)}
+.push-st.warn .dot{background:#ef5350}
+.push-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.push-btns .btn{padding:10px 12px}
+.push-btns #pushOn{grid-column:1/-1}
+.push-btns [hidden]{display:none}
+.owner{border-top:1px solid var(--line);padding-top:10px}
+.owner summary{cursor:pointer;font-size:12px;color:var(--mute)}
+.owner[open] summary{margin-bottom:8px}
+.owner input{width:100%;color:var(--text)}
+#btnNotify.on::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#26a69a;margin-right:6px;vertical-align:1px}
 .inst-icon img{border-radius:14px}
 .inst-icon div{display:flex;flex-direction:column;gap:2px}
 .isteps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px}
@@ -417,6 +433,25 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   <div class="sheet-h"><h2 id="installTitle">ติดตั้งแอพบนเครื่อง</h2><button class="x" type="button" data-close aria-label="ปิด">✕</button></div>
   <div class="inst-icon"><img src="icon-192.png" alt="" width="64" height="64"><div><b>KG Signal XAUUSD</b><span class="hint">เปิดเต็มจอเหมือนแอพ มีไอคอนบนหน้าจอโฮม</span></div></div>
   <div id="installSteps"></div>
+</dialog>
+
+<dialog class="sheet" id="dlgNotify" aria-labelledby="notifyTitle">
+  <div class="sheet-h"><h2 id="notifyTitle">แจ้งเตือนสัญญาณ</h2><button class="x" type="button" data-close aria-label="ปิด">✕</button></div>
+  <p class="hint" style="margin:0">เด้งเตือน P-BUY / P-SELL ของ TF15 · 1H · 4H บนเครื่องทันทีที่แท่งปิด <b>แม้ปิดแอพ ปิดจอ</b> — แตะแจ้งเตือนเพื่อเปิดแอพ</p>
+  <div class="push-st off" id="pushStatus"><span class="dot"></span><span id="pushStatusTxt">กำลังตรวจสอบ…</span></div>
+  <div class="push-btns">
+    <button class="btn gold" type="button" id="pushOn">เปิดแจ้งเตือน</button>
+    <button class="btn" type="button" id="pushTest" hidden>ส่งแจ้งเตือนทดสอบ</button>
+    <button class="btn" type="button" id="pushOff" hidden>ปิดแจ้งเตือน</button>
+  </div>
+  <p class="hint" id="pushNote" style="margin:0">สัญญาณที่เตือนใช้ค่าเริ่มต้นของแอพ (TF ที่กันเปิดครบ, TP2 = 2R)</p>
+  <details class="owner" id="pushOwner">
+    <summary>สำหรับเจ้าของแอพ: ลิงก์เซิร์ฟเวอร์แจ้งเตือน</summary>
+    <div class="field">
+      <input type="url" id="optPushUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+      <span class="hint">วาง Web app URL ของ Apps Script (KG_Push.gs) · ใส่ตรงนี้ใช้ได้เฉพาะเครื่องนี้ — ถ้าต้องการให้ทุกคนที่ติดตั้งแอพใช้ได้ ให้ใส่ใน index.html ที่บรรทัด <b>PUSH_SERVER</b></span>
+    </div>
+  </details>
 </dialog>
 
 <div class="toast" id="toast" aria-live="polite"></div>
@@ -1269,7 +1304,7 @@ function checkNewSignals(first){
         const msg = `KG ${TFMAP[id].label} · ${e.label} @ ${f2(e.entry)} | SL ${f2(e.sl)} | TP ${f2(e.tp2)}`;
         toast(msg);
         track("signal_alert", { timeframe: TFMAP[id].label, signal: e.label });
-        try { if (window.Notification && Notification.permission === "granted") new Notification("KG Signal XAUUSD", { body: msg }); } catch(e){}
+        if (!pushOn()) localNotify(`${e.side === "BUY" ? "🟢" : "🔴"} ${e.label} · XAUUSD ${TFMAP[id].label}`, msg, "bgold-" + id + "-" + e.t + "-" + e.side);
       }
       beep();
     }
@@ -1362,12 +1397,7 @@ document.querySelectorAll("[data-htf]").forEach(c => c.onchange = () => { S.htf[
 document.querySelectorAll("[data-eng]").forEach(c => c.onchange = () => { S.eng[c.dataset.eng] = c.checked; onCalcSettingChange(); });
 $("logFilter").onchange = renderLog;
 $("btnRefresh").onclick = () => refresh(true);
-$("btnNotify").onclick = async () => {
-  beep();
-  if (!window.Notification){ toast("เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน — ใช้เสียงและป๊อปอัปในหน้าแทน"); return; }
-  try { const p = await Notification.requestPermission(); track("notify_enable", { result: p }); toast(p === "granted" ? "เปิดแจ้งเตือนแล้ว — เปิดหน้านี้ทิ้งไว้เพื่อรับสัญญาณ" : "ไม่ได้รับอนุญาตแจ้งเตือน — ยังมีเสียงและป๊อปอัปในหน้า"); }
-  catch(e){ toast("เปิดแจ้งเตือนไม่ได้"); }
-};
+$("btnNotify").onclick = () => { beep(); openNotify(); };
 $("segTf").onclick = e => {
   const b = e.target.closest("button"); if (!b) return;
   chartTf = b.dataset.tf;
@@ -1398,6 +1428,101 @@ function syncInstallBtn(){ $("btnInstall").hidden = isStandalone(); }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; syncInstallBtn(); });
 window.addEventListener("appinstalled", () => { track("app_installed"); installEvt = null; syncInstallBtn(); toast("ติดตั้ง KG Signal XAUUSD แล้ว — เปิดได้จากไอคอนบนหน้าจอ"); });
 if (onWeb && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+// ---------------- แจ้งเตือนแม้ปิดแอพ (Web Push ผ่าน Apps Script ของเจ้าของแอพ) ----------------
+// เจ้าของแอพ: วาง Web app URL ของ KG_Push.gs ระหว่าง "" ด้านล่าง แล้วอัปโหลดขึ้น GitHub — ทุกเครื่องจะใช้ได้ทันที
+const PUSH_SERVER = "https://script.google.com/macros/s/AKfycbxHYSj4hPWTdzVyvH3PKDecY4LA-55ek0o7UrNkDDVScunXDNloBqbGV2eYi3P_-hgT/exec";
+const pushUrl = () => String(store.get("pushUrl", "") || PUSH_SERVER).trim();
+const pushOn = () => !!store.get("pushOn", false);
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const pushCapable = () => onWeb && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const b64uBytes = s => { s = s.replace(/-/g, "+").replace(/_/g, "/"); const b = atob(s + "===".slice((s.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+const bytesB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function pushApi(params){
+  const url = pushUrl();
+  if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) throw new Error("noserver");
+  const r = await fetch(url + (url.includes("?") ? "&" : "?") + new URLSearchParams(Object.assign({ _: Date.now() }, params)), { cache: "no-store" });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "server");
+  return j;
+}
+// เก็บค่าที่ service worker ต้องใช้ (ลิงก์เซิร์ฟเวอร์ + สัญญาณที่เคยเห็นแล้ว) ไว้ใน Cache Storage
+async function swPut(name, obj){ const c = await caches.open("kg-push"); await c.put(new Request("./__" + name), new Response(JSON.stringify(obj), { headers: { "Content-Type": "application/json" } })); }
+async function localNotify(title, body, tag){
+  try {
+    if (!window.Notification || Notification.permission !== "granted") return;
+    const reg = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration() : null;
+    const opt = { body, tag, icon: "icon-192.png", badge: "icon-192.png" };
+    if (reg) await reg.showNotification(title, opt); else new Notification(title, opt);
+  } catch(e){}
+}
+async function currentSub(){
+  if (!pushCapable()) return null;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return reg ? reg.pushManager.getSubscription() : null;
+}
+async function renderPushStatus(){
+  const st = $("pushStatus"), tx = $("pushStatusTxt"), on = $("pushOn"), test = $("pushTest"), off = $("pushOff");
+  const set = (cls, html, mode) => { st.className = "push-st " + cls; tx.innerHTML = html;
+    on.hidden = mode !== "enable"; test.hidden = off.hidden = mode !== "manage"; on.disabled = false; };
+  $("btnNotify").classList.toggle("on", pushOn());
+  $("btnNotify").textContent = pushOn() ? "แจ้งเตือนเปิดอยู่" : "เปิดแจ้งเตือน";
+  $("optPushUrl").value = store.get("pushUrl", "") || PUSH_SERVER;
+  if (!onWeb) return set("warn", "ตอนนี้เปิดจากไฟล์ในเครื่อง — ต้องเปิดจากลิงก์เว็บ (GitHub Pages) จึงจะเปิดแจ้งเตือนได้", "none");
+  if (isIOS() && !isStandalone()) return set("warn", "<b>iPhone / iPad:</b> ติดตั้งแอพลงหน้าจอโฮมก่อน (ปุ่ม <b>ติดตั้ง</b>) แล้วเปิดแอพจากไอคอน จากนั้นกลับมากดเปิดแจ้งเตือนที่นี่ · ต้องเป็น iOS 16.4 ขึ้นไป", "none");
+  if (!pushCapable()) return set("warn", "เบราว์เซอร์นี้ไม่รองรับแจ้งเตือนตอนปิดแอพ — ใช้ Chrome, Edge, Samsung Internet, Firefox หรือ Safari (iOS 16.4+ ที่ติดตั้งแอพแล้ว)", "none");
+  if (!pushUrl()){ $("pushOwner").open = true; return set("warn", "ยังไม่ได้ตั้งเซิร์ฟเวอร์แจ้งเตือน — เจ้าของแอพวางลิงก์ Web app ด้านล่างก่อน", "none"); }
+  if (Notification.permission === "denied") return set("warn", "เครื่องนี้บล็อกการแจ้งเตือนของแอพไว้ — เปิดอนุญาตในการตั้งค่าเบราว์เซอร์ / ตั้งค่าเครื่อง แล้วกลับมากดใหม่", "enable");
+  const sub = await currentSub().catch(() => null);
+  if (sub && pushOn() && Notification.permission === "granted") return set("on", "<b>เปิดอยู่</b> — เครื่องนี้จะได้รับแจ้งเตือน P-BUY / P-SELL แม้ปิดแอพ", "manage");
+  if (pushOn()) store.set("pushOn", false), $("btnNotify").classList.remove("on"), $("btnNotify").textContent = "เปิดแจ้งเตือน";
+  set("off", "ยังไม่เปิด — กดปุ่มด้านล่าง แล้วกด <b>อนุญาต</b> เมื่อเครื่องถาม", "enable");
+}
+function openNotify(){ $("dlgNotify").showModal(); renderPushStatus(); }
+async function enablePush(){
+  const btn = $("pushOn"); btn.disabled = true;
+  try {
+    const perm = await Notification.requestPermission();   // ต้องเรียกทันทีจากการกดปุ่ม (iOS)
+    track("notify_enable", { result: perm });
+    if (perm !== "granted"){ toast("ไม่ได้รับอนุญาตแจ้งเตือน"); return; }
+    const reg = await navigator.serviceWorker.ready;
+    const { key } = await pushApi({ a: "vapid" });
+    let sub = await reg.pushManager.getSubscription();
+    if (sub && sub.options && sub.options.applicationServerKey && bytesB64u(sub.options.applicationServerKey) !== key){ await sub.unsubscribe(); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(key) });
+    await pushApi({ a: "sub", ep: sub.endpoint });
+    const { items } = await pushApi({ a: "latest" });
+    await swPut("push_seen", (items || []).map(x => x.id));   // ไม่เด้งสัญญาณเก่าที่เกิดก่อนเปิด
+    await swPut("push_cfg", { url: pushUrl(), key });
+    store.set("pushOn", true);
+    track("push_enabled");
+    toast("เปิดแจ้งเตือนแล้ว — ลองกด \"ส่งแจ้งเตือนทดสอบ\" ได้เลย");
+  } catch(e){
+    toast(e.message === "noserver" ? "ลิงก์เซิร์ฟเวอร์แจ้งเตือนไม่ถูกต้อง" : "เปิดแจ้งเตือนไม่สำเร็จ: " + (e.message || e));
+  } finally { btn.disabled = false; renderPushStatus(); }
+}
+$("pushOn").onclick = enablePush;
+$("pushTest").onclick = async () => {
+  const b = $("pushTest"); b.disabled = true;
+  try {
+    const sub = await currentSub(); if (!sub) throw new Error("ยังไม่ได้เปิดแจ้งเตือน");
+    await pushApi({ a: "test", ep: sub.endpoint });
+    toast("ส่งแล้ว — แจ้งเตือนจะเด้งภายในไม่กี่วินาที (ลองปิดแอพ/ล็อกจอดูก็ได้)");
+  } catch(e){ toast("ทดสอบไม่สำเร็จ: " + (e.message || e)); }
+  finally { setTimeout(() => b.disabled = false, 20000); }
+};
+$("pushOff").onclick = async () => {
+  try { const sub = await currentSub(); if (sub){ pushApi({ a: "unsub", ep: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); } } catch(e){}
+  store.set("pushOn", false); track("push_disabled"); toast("ปิดแจ้งเตือนบนเครื่องนี้แล้ว"); renderPushStatus();
+};
+$("optPushUrl").onchange = e => {
+  const v = e.target.value.trim();
+  if (v && !/^https:\/\/script\.google\.com\/.+\/exec$/.test(v)){ toast("ลิงก์ต้องขึ้นต้น https://script.google.com/ และลงท้าย /exec"); return; }
+  store.set("pushUrl", v === PUSH_SERVER ? "" : v); renderPushStatus();
+};
+// อัปเดตลิงก์เซิร์ฟเวอร์ให้ service worker ทุกครั้งที่เปิดแอพ (เผื่อเจ้าของเปลี่ยนลิงก์)
+if (pushOn() && pushCapable() && pushUrl()) pushApi({ a: "vapid" }).then(({ key }) => swPut("push_cfg", { url: pushUrl(), key })).catch(() => {});
+renderPushStatus();
 function installSteps(){
   const ua = navigator.userAgent;
   const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
