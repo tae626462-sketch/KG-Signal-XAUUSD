@@ -370,7 +370,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <div class="field data-box">
       <div class="field">
         <label>แหล่งราคา</label>
-        <span>ราคาปัจจุบัน: XAU Spot จาก gold-api.com (อัปเดตทุก 3 วินาที)</span>
+        <span>ราคาปัจจุบัน: ขยับทุก 1 วินาทีจาก Gold Price Index แล้วปรับระดับให้ตรง XAU Spot (gold-api.com)</span>
         <span>แท่งเทียนย้อนหลัง: Gold Price Index (XAUUSDT) ปรับระดับให้ตรง Spot</span>
         <span class="hint">ไม่ต้องใช้ key · ส่วนต่างที่ปรับตอนนี้: <b class="num" id="offLbl">—</b> · แอพตัดแท่งช่วงตลาดทองปิดออกให้</span>
       </div>
@@ -951,17 +951,36 @@ async function fetchRaw(tf, limit){
 // ---------- เรียลไทม์: อัปเดตแท่งปัจจุบันทุก tick ----------
 let ws = null, wsAlive = false, wsRetry = 0, lastTick = 0, lastPrice = NaN;
 
-// ---------- ราคา Spot ปัจจุบัน (gold-api.com) + ปรับแท่ง Index ให้ตรง Spot ----------
-// OFFSET = Spot − Index  → ทุกราคาที่แสดง/คำนวณ = ราคา Index + OFFSET
-let OFFSET = 0, offsetReady = false, computedOffset = 0, spotFail = 0, spotTimer = null;
-const spot = { px: NaN, at: 0 }, lastIndex = { px: NaN, at: 0 };
+// ---------- ราคาเรียลไทม์ ----------
+// ราคาเคลื่อนไหวทุก 1 วินาทีจาก Gold Price Index (Binance) แล้วปรับระดับให้ตรง XAU Spot (gold-api.com)
+// OFFSET = Spot − Index ณ เวลาเดียวกัน  → ทุกราคาที่แสดง/คำนวณ = ราคา Index + OFFSET
+// (gold-api อัปเดตราคาไม่ถี่ จึงใช้แค่ปรับระดับ ไม่ใช้เป็นตัวขยับราคา)
+let OFFSET = 0, offsetReady = false, computedOffset = 0, spotFail = 0, spotTimer = null, idxTimer = null;
+const spot = { px: NaN, at: 0, src: 0, key: "" }, lastIndex = { px: NaN, at: 0 };
+const idxHist = [];                                       // [เวลา ms, ราคา Index] ย้อนหลัง 10 นาที
 const spotFresh = () => Date.now() - spot.at < 10000;
+const idxLive = () => Date.now() - lastIndex.at < 5000;
 const shiftBar = b => ({ t: b.t, o: b.o + OFFSET, h: b.h + OFFSET, l: b.l + OFFSET, c: b.c + OFFSET, closed: b.closed });
+function pushIndex(px){
+  const now = Date.now();
+  lastIndex.px = px; lastIndex.at = now;
+  idxHist.push([now, px]);
+  while (idxHist.length && now - idxHist[0][0] > 600000) idxHist.shift();
+}
+// ราคา Index ณ เวลา ms (ใกล้สุดภายใน 5 วินาที)
+function indexAt(ms){
+  let best = null;
+  for (const h of idxHist) if (!best || Math.abs(h[0] - ms) < Math.abs(best[0] - ms)) best = h;
+  return best && Math.abs(best[0] - ms) <= 5000 ? best[1] : NaN;
+}
 function sampleOffset(){
-  if (!isFinite(spot.px) || !isFinite(lastIndex.px) || Math.abs(spot.at - lastIndex.at) > (wsAlive ? 3000 : 15000)) return;
-  const s = spot.px - lastIndex.px;
+  if (!isFinite(spot.px)) return;
+  let ix = indexAt(spot.src);
+  if (!isFinite(ix) && !offsetReady && idxLive()) ix = lastIndex.px;   // เปิดแอพครั้งแรก: ใช้ราคาปัจจุบันไปก่อน
+  if (!isFinite(ix)) return;
+  const s = spot.px - ix;
   if (Math.abs(s) > 150) return;                       // ข้อมูลผิดปกติ ข้าม
-  OFFSET = offsetReady ? OFFSET * 0.8 + s * 0.2 : s;   // เฉลี่ยให้นิ่ง
+  OFFSET = offsetReady ? OFFSET * 0.7 + s * 0.3 : s;   // เฉลี่ยให้นิ่ง
   offsetReady = true;
   $("offLbl").textContent = (OFFSET >= 0 ? "+" : "") + f2(OFFSET);
   if (Math.abs(OFFSET - computedOffset) > 0.5 && RES["15m"]){ compute(); renderAll(); }
@@ -974,15 +993,35 @@ async function pollSpot(){
     const j = await r.json();
     const px = +j.price;
     if (!(px > 0)) throw new Error("no price");
-    spot.px = px; spot.at = Date.now(); spotFail = 0;
-    sampleOffset();
-    if (offsetReady) onTick(px - OFFSET, Math.floor(Date.now() / 1000), "spot");
+    const now = Date.now(), up = Date.parse(j.updatedAt || "");
+    const key = px + "|" + (j.updatedAt || "");
+    spot.px = px; spot.at = now; spotFail = 0;
+    if (key !== spot.key){                              // ได้ราคา Spot ใหม่ → ปรับระดับ
+      spot.key = key;
+      spot.src = isFinite(up) && up <= now + 5000 && now - up < 600000 ? Math.min(up, now) : now;
+      sampleOffset();
+    }
+    if (offsetReady && !idxLive()) onTick(px - OFFSET, Math.floor(now / 1000), "spot");   // ไม่มีสตรีม Index → ใช้ Spot แทน
   } catch(e){ spotFail++; }
   spotTimer = setTimeout(pollSpot, spotFail ? Math.min(30000, 3000 * (spotFail + 1)) : 3000);
+}
+// สำรอง: ถ้า WebSocket ใช้ไม่ได้ ดึงราคา Index ทุก 2 วินาที
+async function pollIndex(){
+  if (wsAlive && idxLive()) return;
+  try {
+    const r = await fetch(`${BG.host}/fapi/v1/premiumIndex?symbol=XAUUSDT`, { cache:"no-store" });
+    if (!r.ok) return;
+    const j = await r.json();
+    const px = +(BG.mode === "index" ? j.indexPrice : j.markPrice);
+    if (!(px > 0)) return;
+    pushIndex(px);
+    onTick(px, Math.floor(Date.now() / 1000), "rest");
+  } catch(e){}
 }
 const closeTimers = {};
 function startRealtime(){
   stopRealtime();
+  if (!idxTimer) idxTimer = setInterval(pollIndex, 2000);
   if (!("WebSocket" in window)) return;
   try { ws = new WebSocket(BG.ws); } catch(e){ return; }
   ws.onopen = () => { wsAlive = true; wsRetry = 0; };
@@ -993,8 +1032,8 @@ function startRealtime(){
     if (d.e === "markPriceUpdate" && BG.mode === "index") px = +d.i;
     else if (d.e === "kline" && BG.mode === "last") px = +d.k.c;
     if (!isFinite(px)) return;
-    lastIndex.px = px; lastIndex.at = Date.now();
-    if (!spotFresh()) onTick(px, Math.floor(d.E / 1000), "ws");   // ใช้ Index ขับแท่งเฉพาะตอนไม่มี Spot
+    pushIndex(px);
+    onTick(px, Math.floor(d.E / 1000), "ws");          // ขยับราคาและแท่งปัจจุบันทุก 1 วินาที
   };
   ws.onclose = () => { wsAlive = false; ws = null; wsRetry++; setTimeout(() => { if (!ws) startRealtime(); }, Math.min(30000, 1500 * wsRetry)); };
   ws.onerror = () => { try { ws && ws.close(); } catch(e){} };
@@ -1025,7 +1064,7 @@ function onTick(px, ts, from){
     const b = DATA[chartTf][DATA[chartTf].length - 1];
     try { sCandle.update({ time: b.t + TZ, open: b.o + OFFSET, high: b.h + OFFSET, low: b.l + OFFSET, close: b.c + OFFSET }); } catch(e){}
   }
-  setStatus((from === "spot" ? "Spot เรียลไทม์ · " : "เรียลไทม์ · ") + clock(), "live");
+  setStatus("เรียลไทม์ · " + clock(), "live");
 }
 const clock = () => new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date());
 function needFetch(tf){
@@ -1191,7 +1230,7 @@ function renderLog(){
 
 function renderPrice(prevRaw){
   const b = DATA["15m"]; if (!b || !b.length) return;
-  const p = spotFresh() ? spot.px : b[b.length - 1].c + OFFSET;
+  const p = idxLive() ? lastIndex.px + OFFSET : spotFresh() ? spot.px : b[b.length - 1].c + OFFSET;
   const prev = isFinite(prevRaw) ? prevRaw + OFFSET : NaN;
   const el = $("price");
   el.textContent = f2(p);
@@ -1205,7 +1244,7 @@ function renderPrice(prevRaw){
       $("pchg").innerHTML = `<span style="color:${ch >= 0 ? "var(--buy)" : "var(--sell)"}">${ch >= 0 ? "+" : ""}${f2(ch)} (${pc >= 0 ? "+" : ""}${pc.toFixed(2)}%)</span> <span style="color:var(--mute)">จากปิดวันก่อน</span>`;
     }
   }
-  $("srcLbl").textContent = spotFresh() ? "XAUUSD Spot · เรียลไทม์" : `XAUUSD · ${BG.mode === "index" ? "Gold Price Index" : "XAUUSDT"}${offsetReady ? " (ปรับตาม Spot)" : ""}`;
+  $("srcLbl").textContent = offsetReady && idxLive() ? "XAUUSD Spot · เรียลไทม์ทุกวินาที" : spotFresh() ? "XAUUSD Spot" : `XAUUSD · ${BG.mode === "index" ? "Gold Price Index" : "XAUUSDT"}${offsetReady ? " (ปรับตาม Spot)" : ""}`;
 }
 
 // ---------------- chart (TradingView Lightweight Charts) ----------------
@@ -1354,7 +1393,7 @@ async function refresh(force){
   await Promise.all(todo.map(async tf => {
     try {
       DATA[tf.id] = await fetchBGold(tf); LASTFETCH[tf.id] = Date.now();
-      if (tf.id === "15m"){ const lb = DATA[tf.id][DATA[tf.id].length - 1]; if (!wsAlive || !isFinite(lastIndex.px)){ lastIndex.px = lb.c; lastIndex.at = Date.now(); } }
+      if (tf.id === "15m"){ const lb = DATA[tf.id][DATA[tf.id].length - 1]; if (!idxLive()) pushIndex(lb.c); }
     }
     catch(e){ errs.push(tf.label + ": " + (e.message || e)); }
   }));
