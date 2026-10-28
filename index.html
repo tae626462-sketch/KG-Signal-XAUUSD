@@ -140,7 +140,6 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
   .log td{border:0;padding:0;white-space:normal;text-align:left!important;min-width:0}
   .log td[data-l]::before{content:attr(data-l);display:block;font:500 9.5px/1.4 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
   .log td.c-time{grid-column:span 2;align-self:center}
-  .log td.c-wp{grid-column:span 2}
   .log tr:hover td{background:none}
 }
 
@@ -349,7 +348,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <section class="panel">
   <div class="ph">
-    <h2>บันทึกสัญญาณ 24 ชม.</h2>
+    <h2>5 สัญญาณล่าสุด</h2>
     <div class="ctrls">
       <select id="logFilter" class="sel" aria-label="กรองตาม TF">
         <option value="all">ทุก TF</option><option value="15m">TF15</option><option value="30m">TF30</option><option value="1h">1H</option><option value="4h">4H</option>
@@ -358,11 +357,11 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   </div>
   <div class="tablewrap">
     <table class="log">
-      <thead><tr><th>แท่งปิด (ไทย)</th><th>TF</th><th>สัญญาณ</th><th class="n">Entry</th><th class="n">SL</th><th class="n">TP1 (1R)</th><th class="n">TP2</th><th class="n">Win %</th></tr></thead>
-      <tbody id="logBody"><tr><td colspan="8" style="color:var(--mute)">กำลังโหลด…</td></tr></tbody>
+      <thead><tr><th>แท่งปิด (ไทย)</th><th>TF</th><th>สัญญาณ</th><th class="n">Entry</th><th class="n">SL</th><th class="n">TP1 (1R)</th><th class="n">TP2</th></tr></thead>
+      <tbody id="logBody"><tr><td colspan="7" style="color:var(--mute)">กำลังโหลด…</td></tr></tbody>
     </table>
   </div>
-  <p class="hint log-note">เก็บเฉพาะสัญญาณที่เกิดภายใน 1 วันล่าสุด — เกิน 24 ชม. ลบออกอัตโนมัติ <span id="logCount"></span></p>
+  <p class="hint log-note">แสดง 5 สัญญาณล่าสุดที่เกิดภายใน 24 ชม. — สัญญาณเก่ากว่านั้นลบออกอัตโนมัติ</p>
 </section>
 
 <details class="panel" id="settings">
@@ -882,6 +881,7 @@ const TFS = [
 const TFMAP = Object.fromEntries(TFS.map(t => [t.id, t]));
 const SIG_TF = ["15m", "30m", "1h", "4h"];          // TF ที่คำนวณสัญญาณ (D ใช้เป็น TF กันของ 4H)
 const LOG_KEEP = 86400;                              // เก็บบันทึกสัญญาณ 1 วัน
+const LOG_MAX = 5;                                   // แสดงเฉพาะ 5 สัญญาณล่าสุด
 
 const store = {
   get(k, d){ try { const v = localStorage.getItem("kgxau." + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
@@ -1055,19 +1055,19 @@ let HTF_LIVE = {};
 
 // ---------------- verdict ----------------
 function computeVerdict(){
-  // สรุปจากสัญญาณ KG v7.8 ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF, ประเภทสัญญาณ และคะแนน Win %
+  // สรุปจากสัญญาณ KG v7.8 ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF และประเภทสัญญาณ (ไม่ใช้ Win %)
   let buy = 0, sell = 0; const reasons = [], cands = [];
   for (const id of SIG_TF.slice().reverse()){
     const r = RES[id], tf = TFMAP[id]; if (!r || !r.last) continue;
     const lastI = r.n - 1;
     const fresh = r.events.filter(e => enabledEv(e) && lastI - e.i < tf.fresh);
     for (const side of ["BUY", "SELL"]){
-      const best = fresh.filter(e => e.side === side).sort((a, b) => ENG[b.group].w - ENG[a.group].w || b.wp - a.wp || b.i - a.i)[0];
+      const best = fresh.filter(e => e.side === side).sort((a, b) => ENG[b.group].w - ENG[a.group].w || b.i - a.i)[0];
       if (!best) continue;
-      const s = tf.mult * (ENG[best.group].w / 3) * (0.5 + best.wp / 100);
+      const s = tf.mult * ENG[best.group].w / 2;
       if (side === "BUY") buy += s; else sell += s;
       const ago = lastI - best.i;
-      reasons.push({ tf: tf.label, side, chip: side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${best.wp}%` });
+      reasons.push({ tf: tf.label, side, chip: side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"}` });
       cands.push({ e: best, s });
     }
     for (const e of r.events.filter(e => blockedEv(e) && lastI - e.i < tf.fresh).slice(-2))
@@ -1097,7 +1097,7 @@ function pbRow(side, o, live){
   const ticks = items.map(([n, ok]) => `<span class="ck${ok ? " ok" : ""}">${ok ? "✓" : "✗"} ${n}</span>`).join("")
     + (live && Object.keys(live).length ? `<span class="ck${blk ? "" : " ok"}">${blk ? "✗" : "✓"} ${HTF.label[Object.keys(live)[0]]}</span>` : "");
   const st = met === 3 && blk ? `<span class="chip gold">รอ ${HTF.label[blk]} ${side === "SELL" ? "ขึ้นถึง OB" : "ลงถึง OS"}</span>`
-    : met === 3 ? `<span class="chip ${side === "BUY" ? "buy" : "sell"}">รอ K×D · ${Math.round(o.potential)}%</span>` : `<span class="chip neu">${met}/3${blk ? " · " + HTF.label[blk] + " กัน" : ""}</span>`;
+    : met === 3 ? `<span class="chip ${side === "BUY" ? "buy" : "sell"}">รอ K×D</span>` : `<span class="chip neu">${met}/3${blk ? " · " + HTF.label[blk] + " กัน" : ""}</span>`;
   return `<div class="row pbrow"><span class="k">P-${side}</span><span class="v pbv"><span class="cks">${ticks}</span>${st}</span></div>`;
 }
 function htfRow(live){
@@ -1128,7 +1128,7 @@ function renderCards(){
     if (le){
       const ago = r.n - 1 - le.i, fresh = ago < tf.fresh;
       lastHtml = `<div class="last${fresh ? " fresh" : ""}">
-        <div class="top2"><span class="chip ${sideCls(le.side)}">${esc(le.label)} ${le.wp}%</span>
+        <div class="top2"><span class="chip ${sideCls(le.side)}">${esc(le.label)}</span>
           <span class="lbl">${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${fmtT(le.t)}</span></div>
         <div class="lv"><div><span class="lbl">Entry</span><b>${f2(le.entry)}</b></div>
           <div><span class="lbl">SL</span><b style="color:var(--sell)">${f2(le.sl)}</b></div>
@@ -1182,13 +1182,11 @@ function renderLog(){
   const all = [];
   const cut = Math.floor(Date.now() / 1000) - LOG_KEEP;   // สัญญาณที่แท่งปิดเกิน 24 ชม. ไม่แสดง (ลบอัตโนมัติ)
   for (const id of SIG_TF) if (RES[id]) all.push(...RES[id].events.filter(e => enabledEv(e) && e.t + TFMAP[id].sec >= cut));
-  const rows = all.filter(e => flt === "all" || e.tf === flt).sort((a, b) => b.t - a.t || b.i - a.i || TFMAP[a.tf].sec - TFMAP[b.tf].sec);
-  $("logCount").textContent = `· ตอนนี้ ${rows.length} สัญญาณ`;
+  const rows = all.filter(e => flt === "all" || e.tf === flt).sort((a, b) => b.t - a.t || b.i - a.i || TFMAP[a.tf].sec - TFMAP[b.tf].sec).slice(0, LOG_MAX);
   $("logBody").innerHTML = rows.length ? rows.map(e => `<tr>
     <td class="c-time">${fmtT(e.t + TFMAP[e.tf].sec)}</td><td class="c-tf">${TFMAP[e.tf].label}</td><td class="c-sig"><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span></td>
-    <td class="n" data-l="Entry">${f2(e.entry)}</td><td class="n" data-l="SL" style="color:var(--sell)">${f2(e.sl)}</td><td class="n" data-l="TP1">${f2(e.tp1)}</td><td class="n" data-l="TP2" style="color:var(--buy)">${f2(e.tp2)}</td>
-    <td class="n c-wp" data-l="Win %">${e.wp}%</td></tr>`).join("")
-    : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณใน 24 ชม. ล่าสุด</td></tr>`;
+    <td class="n" data-l="Entry">${f2(e.entry)}</td><td class="n" data-l="SL" style="color:var(--sell)">${f2(e.sl)}</td><td class="n" data-l="TP1">${f2(e.tp1)}</td><td class="n" data-l="TP2" style="color:var(--buy)">${f2(e.tp2)}</td></tr>`).join("")
+    : `<tr><td colspan="7" style="color:var(--mute)">ยังไม่มีสัญญาณใน 24 ชม. ล่าสุด</td></tr>`;
 }
 
 function renderPrice(prevRaw){
@@ -1254,7 +1252,7 @@ function renderChart(){
   sD.setData(all.map(b => { const i = idxMap.get(b.t); return i !== undefined && !isNaN(r.D[i]) ? { time:b.t + TZ, value:r.D[i] } : { time:b.t + TZ }; }));
   const evs = r.events.filter(enabledEv);
   const markers = evs.map(e => { const [color, shape] = MK[e.group][e.side];
-    const txt = ["main", "weak", "pb"].includes(e.group) ? `${e.label} ${e.wp}%` : e.label;
+    const txt = e.label;
     return { time: e.t + TZ, position: e.side === "BUY" ? "belowBar" : "aboveBar", color, shape, text: txt }; })
     .concat(r.events.filter(blockedEv).map(e => ({ time: e.t + TZ, position: e.side === "BUY" ? "belowBar" : "aboveBar",
       color: "rgba(141,153,179,.75)", shape: "circle", text: `${e.label} ✕${HTF.label[e.blk]}` })))
@@ -1575,7 +1573,7 @@ function signalSummary(){
     for (const id of SIG_TF){
       const r = RES[id], tf = TFMAP[id]; if (!r) continue;
       const e = r.events.filter(enabledEv).filter(x => r.n - 1 - x.i < tf.fresh).slice(-1)[0];
-      lines.push(e ? `${tf.label}: ${e.label} ${e.wp}% · Entry ${f2(e.entry)} · SL ${f2(e.sl)} · TP ${f2(e.tp2)}` : `${tf.label}: ยังไม่มีสัญญาณสด`);
+      lines.push(e ? `${tf.label}: ${e.label} · Entry ${f2(e.entry)} · SL ${f2(e.sl)} · TP ${f2(e.tp2)}` : `${tf.label}: ยังไม่มีสัญญาณสด`);
     }
   }
   lines.push("เครื่องมือช่วยวิเคราะห์ ไม่ใช่คำแนะนำการลงทุน");
