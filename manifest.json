@@ -1,7 +1,7 @@
 {
   "name": "KG Signal XAUUSD",
   "short_name": "KG XAUUSD",
-  "description": "Kindergarten Signal v7.8 — สัญญาณ P-BUY / P-SELL ทองคำ XAUUSD TF15 / 1H / 4H เรียลไทม์",
+  "description": "Kindergarten Signal v7.8 — สัญญาณ KG Signal v7.8 ทองคำ XAUUSD TF15 / TF30 / 1H / 4H เรียลไทม์",
   "lang": "th",
   "id": "./",
   "start_url": "./",

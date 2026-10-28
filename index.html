@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>KG Signal XAUUSD</title>
-<meta name="description" content="Kindergarten Signal v7.8 — วิเคราะห์ XAUUSD TF15 / 1H / 4H พร้อมกราฟ TradingView">
+<meta name="description" content="Kindergarten Signal v7.8 — วิเคราะห์ XAUUSD TF15 / TF30 / 1H / 4H พร้อมกราฟ TradingView">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0e16">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -81,8 +81,8 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 
 /* top grid */
 .top{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:720px){.top{grid-template-columns:repeat(3,minmax(0,1fr))}.verdict{grid-column:1/-1}}
-@media(min-width:1180px){.top{grid-template-columns:minmax(300px,1.15fr) repeat(3,minmax(0,1fr))}.verdict{grid-column:auto}}
+@media(min-width:720px){.top{grid-template-columns:repeat(2,minmax(0,1fr))}.verdict{grid-column:1/-1}}
+@media(min-width:1180px){.top{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0}
 .ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .ph h2,.ph h3{margin:0;font:600 15px/1.2 var(--f-display);letter-spacing:.02em}
@@ -154,13 +154,14 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 #chartStoch{height:120px;border-top:1px solid var(--line)}
 #tvBox{height:600px}
 #tvBox > div{height:100%}
-.tv3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
-.tv3 > div{min-width:0;border-right:1px solid var(--line)}
-.tv3 > div:last-child{border-right:0}
+.tv3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.tv3 > div{min-width:0;border-bottom:1px solid var(--line)}
+.tv3 > div:nth-child(odd){border-right:1px solid var(--line)}
 .tv3h{font:700 13px/1 var(--f-display);color:var(--gold);padding:8px 12px;border-bottom:1px solid var(--line)}
-.tv3c{height:520px}
+.tv3c{height:440px}
 @media(max-width:900px){.tv3{grid-template-columns:1fr}.tv3 > div{border-right:0;border-bottom:1px solid var(--line)}.tv3c{height:400px}}
 .ctrls .btn{text-decoration:none;display:inline-flex;align-items:center}
+.log-note{margin:0;padding:10px 14px 12px}
 .seg button:disabled{opacity:.35;cursor:default}
 @media(max-width:640px){#chartMain{height:340px}#tvBox{height:460px}.plan{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
@@ -252,7 +253,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   <div class="brand">
     <span class="kicker">Kindergarten Trader · KG Signal v7.8</span>
     <h1>XAUUSD <span>Signal Desk</span></h1>
-    <span class="tag">เทรดง่ายๆ เด็กอนุบาลก็เทรดได้ · วิเคราะห์ TF15 / 1H / 4H อัตโนมัติ</span>
+    <span class="tag">เทรดง่ายๆ เด็กอนุบาลก็เทรดได้ · วิเคราะห์ TF15 / TF30 / 1H / 4H อัตโนมัติ</span>
   </div>
   <div class="quote">
     <div>
@@ -276,12 +277,12 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <section class="top">
   <article class="panel verdict" id="verdict">
-    <div class="ph"><h2>สรุป Pullback 3 TF</h2><span class="lbl" id="vTime">—</span></div>
+    <div class="ph"><h2>สรุปสัญญาณ 4 TF</h2><span class="lbl" id="vTime">—</span></div>
     <div class="vbody">
       <div class="vword v-wait" id="vWord"><b>—</b><span class="sub">กำลังคำนวณ</span></div>
       <div>
         <div class="meter"><i id="vNeedle" style="left:50%"></i></div>
-        <div class="meter-scale"><span>P-SELL</span><span>รอ</span><span>P-BUY</span></div>
+        <div class="meter-scale"><span>SELL</span><span>รอ</span><span>BUY</span></div>
       </div>
       <div id="vPlan"></div>
       <div>
@@ -295,6 +296,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     </div>
   </article>
   <article class="panel tf" id="card-15m"></article>
+  <article class="panel tf" id="card-30m"></article>
   <article class="panel tf" id="card-1h"></article>
   <article class="panel tf" id="card-4h"></article>
 </section>
@@ -305,12 +307,13 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <div class="ctrls">
       <div class="seg" role="group" aria-label="Timeframe" id="segTf">
         <button type="button" data-tf="15m" aria-pressed="true">TF15</button>
+        <button type="button" data-tf="30m" aria-pressed="false">TF30</button>
         <button type="button" data-tf="1h" aria-pressed="false">1H</button>
         <button type="button" data-tf="4h" aria-pressed="false">4H</button>
       </div>
       <div class="seg" role="group" aria-label="มุมมองกราฟ" id="segView">
         <button type="button" data-view="tv" aria-pressed="true">TradingView</button>
-        <button type="button" data-view="tv3" aria-pressed="false">3 TF</button>
+        <button type="button" data-view="tv3" aria-pressed="false">4 TF</button>
         <button type="button" data-view="kg" aria-pressed="false">KG Signal</button>
       </div>
       <a class="btn" id="tvLink" href="https://www.tradingview.com/chart/?symbol=TVC%3AGOLD" target="_blank" rel="noopener">เปิดใน TradingView ↗</a>
@@ -322,6 +325,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
   <div id="tv3View" hidden>
     <div class="tv3">
       <div><div class="tv3h">TF15</div><div class="tv3c" id="tv3_15m"></div></div>
+      <div><div class="tv3h">TF30</div><div class="tv3c" id="tv3_30m"></div></div>
       <div><div class="tv3h">1H</div><div class="tv3c" id="tv3_1h"></div></div>
       <div><div class="tv3h">4H</div><div class="tv3c" id="tv3_4h"></div></div>
     </div>
@@ -331,30 +335,34 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <div id="chartMain"></div>
     <div id="chartStoch"></div>
     <div class="legend">
-      <span><i style="background:#26c6da"></i>P-BUY (Pullback Reversal)</span>
-      <span><i style="background:#ff7043"></i>P-SELL (Pullback Reversal)</span>
-      <span><i style="background:#8d99b3;border-radius:50%"></i>P ✕1H = ถูก TF ที่กันตัดทิ้ง (ไม่นับ)</span>
+      <span><i style="background:#2fbf71"></i>BUY / <i style="background:#ef5350"></i>SELL (State Machine + MS Gate)</span>
+      <span><i style="background:rgba(47,191,113,.55)"></i>~BUY / ~SELL (ฟอร์มครบ MS ยังไม่ยืนยัน)</span>
+      <span><i style="background:#e3b04b;border-radius:50%"></i>REJ (Rejection + MS Gate)</span>
+      <span><i style="background:#26c6da"></i>P-BUY / <i style="background:#ff7043"></i>P-SELL (Pullback)</span>
+      <span><i style="background:#4aa3ff"></i>Swing BUY / <i style="background:#ff6b8a"></i>Swing SELL</span>
+      <span><i style="background:#ab47bc"></i>ททกต-B / <i style="background:#ffca28"></i>ททกต-S (1H)</span>
+      <span><i style="background:#8d99b3;border-radius:50%"></i>✕TF30 = ถูก TF ที่กันตัดทิ้ง (ไม่นับ)</span>
       <span><i style="background:#e3b04b80"></i>EMA50</span>
-      <span>เงื่อนไข: Stoch เคยแตะ 35/65 ใน 4 แท่ง + K ตัด D + ยืดจาก EMA50 ≥ 1.5 ATR + Hammer/Star ใน 4 แท่ง + คะแนน ≥ 50%</span>
     </div>
   </div>
 </section>
 
 <section class="panel">
   <div class="ph">
-    <h2>บันทึกสัญญาณล่าสุด</h2>
+    <h2>บันทึกสัญญาณ 24 ชม.</h2>
     <div class="ctrls">
       <select id="logFilter" class="sel" aria-label="กรองตาม TF">
-        <option value="all">ทุก TF</option><option value="15m">TF15</option><option value="1h">1H</option><option value="4h">4H</option>
+        <option value="all">ทุก TF</option><option value="15m">TF15</option><option value="30m">TF30</option><option value="1h">1H</option><option value="4h">4H</option>
       </select>
     </div>
   </div>
   <div class="tablewrap">
     <table class="log">
-      <thead><tr><th>เวลา (ไทย)</th><th>TF</th><th>สัญญาณ</th><th class="n">Entry</th><th class="n">SL</th><th class="n">TP1 (1R)</th><th class="n">TP2</th><th class="n">Win %</th></tr></thead>
+      <thead><tr><th>แท่งปิด (ไทย)</th><th>TF</th><th>สัญญาณ</th><th class="n">Entry</th><th class="n">SL</th><th class="n">TP1 (1R)</th><th class="n">TP2</th><th class="n">Win %</th></tr></thead>
       <tbody id="logBody"><tr><td colspan="8" style="color:var(--mute)">กำลังโหลด…</td></tr></tbody>
     </table>
   </div>
+  <p class="hint log-note">เก็บเฉพาะสัญญาณที่เกิดภายใน 1 วันล่าสุด — เกิน 24 ชม. ลบออกอัตโนมัติ <span id="logCount"></span></p>
 </section>
 
 <details class="panel" id="settings">
@@ -376,21 +384,22 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
         <span class="hint">ตอนนี้แท่ง 4H เปิด <b id="alignNow">—</b> (เวลาไทย) · ปรับตามเวลาฤดูร้อนสหรัฐให้อัตโนมัติ</span>
         <label for="optTvSym">สัญลักษณ์กราฟ TradingView</label>
         <input type="text" id="optTvSym" placeholder="TVC:GOLD" autocomplete="off" spellcheck="false">
-        <span class="hint">ใช้กับแท็บ TradingView และ 3 TF เท่านั้น ไม่มีผลกับการคำนวณสัญญาณ · พิมพ์แบบที่ใช้ใน TradingView เช่น TVC:GOLD หรือ XAUUSD ของโบรกที่คุณใช้</span>
+        <span class="hint">ใช้กับแท็บ TradingView และ 4 TF เท่านั้น ไม่มีผลกับการคำนวณสัญญาณ · พิมพ์แบบที่ใช้ใน TradingView เช่น TVC:GOLD หรือ XAUUSD ของโบรกที่คุณใช้</span>
       </div>
     </div>
     <div class="field">
-      <label>TF ที่กันสัญญาณ (P-BUY / P-SELL)</label>
+      <label>TF ที่กันสัญญาณ (กัน 1 TF · ทุกสัญญาณ)</label>
       <div class="checks">
         <label><input type="checkbox" id="optHtfOn" checked> เปิดตัวกรอง TF ที่กัน</label>
-        <label><input type="checkbox" data-htf="1h" checked> 1H กันสัญญาณ TF15</label>
+        <label><input type="checkbox" data-htf="30m" checked> TF30 กันสัญญาณ TF15</label>
+        <label><input type="checkbox" data-htf="1h" checked> 1H กันสัญญาณ TF30</label>
         <label><input type="checkbox" data-htf="4h" checked> 4H กันสัญญาณ 1H</label>
         <label><input type="checkbox" data-htf="1d" checked> D กันสัญญาณ 4H</label>
       </div>
-      <span class="hint">กัน P-SELL เมื่อ TF ที่กัน "ค้างขึ้น" (Stoch 9,3,3 เคยถึง Oversold ยังไม่ถึง Overbought) และ K เลย 50 แล้ว · กัน P-BUY เมื่อ "ค้างลง" และ K ต่ำกว่า 50 แล้ว</span>
+      <span class="hint">กันสัญญาณ SELL เมื่อ TF ที่กัน "ค้างขึ้น" (Stoch 9,3,3 เคยถึง Oversold ยังไม่ถึง Overbought) และ K เลย 50 แล้ว · กันสัญญาณ BUY เมื่อ "ค้างลง" และ K ต่ำกว่า 50 แล้ว</span>
     </div>
     <div class="field">
-      <label>Engine ที่ใช้ (แสดงบนกราฟ + นับในสรุป)</label>
+      <label>สัญญาณ KG v7.8 ที่ใช้ (แสดงบนกราฟ + นับในสรุป + บันทึก)</label>
       <div class="checks">
         <label><input type="checkbox" data-eng="main" checked> State Machine BUY/SELL + MS Gate</label>
         <label><input type="checkbox" data-eng="weak" checked> ~BUY / ~SELL (ฟอร์มครบ MS ยังไม่ยืนยัน)</label>
@@ -437,14 +446,14 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
 
 <dialog class="sheet" id="dlgNotify" aria-labelledby="notifyTitle">
   <div class="sheet-h"><h2 id="notifyTitle">แจ้งเตือนสัญญาณ</h2><button class="x" type="button" data-close aria-label="ปิด">✕</button></div>
-  <p class="hint" style="margin:0">เด้งเตือน P-BUY / P-SELL ของ TF15 · 1H · 4H บนเครื่องทันทีที่แท่งปิด <b>แม้ปิดแอพ ปิดจอ</b> — แตะแจ้งเตือนเพื่อเปิดแอพ</p>
+  <p class="hint" style="margin:0">เด้งเตือนสัญญาณ KG v7.8 ของ TF15 · TF30 · 1H · 4H บนเครื่องทันทีที่แท่งปิด <b>แม้ปิดแอพ ปิดจอ</b> — แตะแจ้งเตือนเพื่อเปิดแอพ</p>
   <div class="push-st off" id="pushStatus"><span class="dot"></span><span id="pushStatusTxt">กำลังตรวจสอบ…</span></div>
   <div class="push-btns">
     <button class="btn gold" type="button" id="pushOn">เปิดแจ้งเตือน</button>
     <button class="btn" type="button" id="pushTest" hidden>ส่งแจ้งเตือนทดสอบ</button>
     <button class="btn" type="button" id="pushOff" hidden>ปิดแจ้งเตือน</button>
   </div>
-  <p class="hint" id="pushNote" style="margin:0">สัญญาณที่เตือนใช้ค่าเริ่มต้นของแอพ (TF ที่กันเปิดครบ, TP2 = 2R)</p>
+  <p class="hint" id="pushNote" style="margin:0">สัญญาณที่เตือนใช้ค่าเริ่มต้นของแอพ (ทุกสัญญาณ v7.8, กัน 1 TF เปิดครบ, TP2 = 2R)</p>
   <details class="owner" id="pushOwner">
     <summary>สำหรับเจ้าของแอพ: ลิงก์เซิร์ฟเวอร์แจ้งเตือน</summary>
     <div class="field">
@@ -733,20 +742,20 @@ function runKG(allBars, tfId){
 // ================================================================
 
 // ================================================================
-//  HTF FILTER START — ตัวกรอง TF ใหญ่ (ใช้ร่วมกันทั้งแอพและบอท Telegram)
-//  TF ที่กัน: TF15 ← 1H · 1H ← 4H · 4H ← D (แต่ละ TF ใช้ TF ถัดไปตัวเดียว)
-//  P-SELL ถูกกัน ถ้า TF ที่กันยัง "ค้างขึ้น" (Stoch เคยถึง Oversold แล้วยังไม่ถึง Overbought) และ K เลยครึ่งทาง (> 50) แล้ว
-//  P-BUY  ถูกกัน ถ้า TF ที่กันยัง "ค้างลง"  (Stoch เคยถึง Overbought แล้วยังไม่ถึง Oversold) และ K เลยครึ่งทาง (< 50) แล้ว
+//  HTF FILTER START — ตัวกรอง TF ใหญ่ (ใช้ร่วมกันทั้งแอพและเซิร์ฟเวอร์แจ้งเตือน)
+//  กัน 1 TF: TF15 ← TF30 · TF30 ← 1H · 1H ← 4H · 4H ← D (แต่ละ TF ใช้ TF ถัดไปตัวเดียว) · ใช้กับทุกสัญญาณ v7.8
+//  สัญญาณ SELL ถูกกัน ถ้า TF ที่กันยัง "ค้างขึ้น" (Stoch เคยถึง Oversold แล้วยังไม่ถึง Overbought) และ K เลยครึ่งทาง (> 50) แล้ว
+//  สัญญาณ BUY  ถูกกัน ถ้า TF ที่กันยัง "ค้างลง"  (Stoch เคยถึง Overbought แล้วยังไม่ถึง Oversold) และ K เลยครึ่งทาง (< 50) แล้ว
 //  สถานะดู ณ เวลาที่แท่งสัญญาณปิด: แท่ง TF ที่กันที่ปิดแล้ว + แท่งที่กำลังก่อตัว (สร้างจากแท่ง TF เล็กจนถึงตอนนั้น)
 //  ไม่ใช้ข้อมูลอนาคต ผลย้อนหลังจึงตรงกับตอนใช้งานจริง
 // ================================================================
 const HTF = {
-  order: ["15m", "1h", "4h", "1d"],
-  sec:   { "15m":900, "1h":3600, "4h":14400, "1d":86400 },
-  label: { "15m":"TF15", "1h":"1H", "4h":"4H", "1d":"D" },
-  guard: { "15m":"1h", "1h":"4h", "4h":"1d" },   // TF ที่ใช้กันสัญญาณของแต่ละ TF
-  use:   { "1h":true, "4h":true, "1d":true },     // เปิด/ปิด TF ที่กัน
-  groups:{ pb:true }                              // กรองเฉพาะ P-BUY / P-SELL
+  order: ["15m", "30m", "1h", "4h", "1d"],
+  sec:   { "15m":900, "30m":1800, "1h":3600, "4h":14400, "1d":86400 },
+  label: { "15m":"TF15", "30m":"TF30", "1h":"1H", "4h":"4H", "1d":"D" },
+  guard: { "15m":"30m", "30m":"1h", "1h":"4h", "4h":"1d" },   // TF ที่ใช้กันสัญญาณของแต่ละ TF (กัน 1 TF)
+  use:   { "30m":true, "1h":true, "4h":true, "1d":true },     // เปิด/ปิด TF ที่กัน
+  groups:{ main:true, weak:true, rej:true, pb:true, swing:true, crev:true }   // กรองทุกสัญญาณของ v7.8
 };
 const htfMid = () => (P.stoOB + P.stoOS) / 2;    // ครึ่งทางระหว่าง Oversold กับ Overbought (= 50)
 // สถานะ { s, k } กันฝั่งไหนได้บ้าง
@@ -865,24 +874,28 @@ function applyHtfFilter(resByTf, barsByTf, nowT){
 // ---------------- data layer ----------------
 const TFS = [
   { id:"15m", label:"TF15", bin:"15m", td:"15min", sec:900,   fresh:4, mult:1,   tv:"15" },
+  { id:"30m", label:"TF30", bin:"30m", td:"30min", sec:1800,  fresh:3, mult:1.1, tv:"30" },
   { id:"1h",  label:"1H",   bin:"1h",  td:"1h",    sec:3600,  fresh:3, mult:1.2, tv:"60" },
   { id:"4h",  label:"4H",   bin:"4h",  td:"4h",    sec:14400, fresh:2, mult:1.5, tv:"240" },
   { id:"1d",  label:"D",    bin:"1d",  td:"1day",  sec:86400, fresh:1, mult:0,   tv:"D" }
 ];
 const TFMAP = Object.fromEntries(TFS.map(t => [t.id, t]));
+const SIG_TF = ["15m", "30m", "1h", "4h"];          // TF ที่คำนวณสัญญาณ (D ใช้เป็น TF กันของ 4H)
+const LOG_KEEP = 86400;                              // เก็บบันทึกสัญญาณ 1 วัน
 
 const store = {
   get(k, d){ try { const v = localStorage.getItem("kgxau." + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem("kgxau." + k, JSON.stringify(v)); } catch(e){} }
 };
-const S = Object.assign({ rr:2, reqMS:true, sound:true, tvSym:"TVC:GOLD", htfOn:true, htf:{ "1h":true, "4h":true, "1d":true },
+const S = Object.assign({ rr:2, reqMS:true, sound:true, tvSym:"TVC:GOLD", htfOn:true, htf:{ "30m":true, "1h":true, "4h":true, "1d":true },
   eng:{ main:true, weak:true, rej:true, pb:true, swing:true, crev:true } }, store.get("settings", {}));
 S.eng = Object.assign({ main:true, weak:true, rej:true, pb:true, swing:true, crev:true }, S.eng || {});
-S.htf = Object.assign({ "1h":true, "4h":true, "1d":true }, S.htf || {});
+S.htf = Object.assign({ "30m":true, "1h":true, "4h":true, "1d":true }, S.htf || {});
 if (S.align !== "utc") S.align = "ny";
 ALIGN.ny = S.align === "ny";
-// ใช้เฉพาะ Pullback Reversal (P-BUY / P-SELL) เป็นสัญญาณเทรด
-if (!S.pbOnly){ S.eng = { main:false, weak:false, rej:false, pb:true, swing:false, crev:false }; S.pbOnly = true; }
+// ใช้สัญญาณ KG Signal v7.8 ครบทุกตัว (ค่าเดิมของ v7.8) — ปิดบางตัวได้ในตั้งค่า
+if (!S.allSig){ S.eng = { main:true, weak:true, rej:true, pb:true, swing:true, crev:true }; S.reqMS = true; S.rr = 2; S.allSig = true; }
+delete S.pbOnly;
 ["key", "weekend", "v2", "v3", "src", "oaEnv", "oaPrice", "oaToken", "oaProxy"].forEach(k => delete S[k]);
 if (!S.tvSym || /^OANDA:/i.test(S.tvSym)) S.tvSym = "TVC:GOLD";
 
@@ -909,7 +922,7 @@ function fetch1hLong(){
   return h1Cache.p;
 }
 async function fetchBGold(tf){
-  if (tf.id === "15m") return fetchRaw(tf, 600);
+  if (tf.id === "15m" || tf.id === "30m") return fetchRaw(tf, 600);
   const h1 = await fetch1hLong();
   if (tf.id === "1h") return h1.slice(-600);
   return aggregateBars(h1, tf.id, Math.floor(Date.now() / 1000));   // 4H / Day เปิดตาม 17:00 New York
@@ -1019,7 +1032,7 @@ function needFetch(tf){
   if (!DATA[tf.id]) return true;
   const age = Date.now() - (LASTFETCH[tf.id] || 0);
   // WebSocket อัปเดตราคาอยู่แล้ว REST ใช้ตรวจแท่งปิด; ถ้า WebSocket หลุด ดึงถี่ขึ้น
-  return age > (wsAlive ? { "15m":60000, "1h":120000, "4h":300000, "1d":900000 } : { "15m":5000, "1h":15000, "4h":60000, "1d":600000 })[tf.id];
+  return age > (wsAlive ? { "15m":60000, "30m":90000, "1h":120000, "4h":300000, "1d":900000 } : { "15m":5000, "30m":10000, "1h":15000, "4h":60000, "1d":600000 })[tf.id];
 }
 
 // ---------------- helpers ----------------
@@ -1042,16 +1055,16 @@ let HTF_LIVE = {};
 
 // ---------------- verdict ----------------
 function computeVerdict(){
-  // สรุปจากสัญญาณ Pullback (P-BUY / P-SELL) ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF และคะแนน Win %
+  // สรุปจากสัญญาณ KG v7.8 ที่ยังสด ในแต่ละ TF — น้ำหนักตาม TF, ประเภทสัญญาณ และคะแนน Win %
   let buy = 0, sell = 0; const reasons = [], cands = [];
-  for (const id of ["4h", "1h", "15m"]){
+  for (const id of SIG_TF.slice().reverse()){
     const r = RES[id], tf = TFMAP[id]; if (!r || !r.last) continue;
     const lastI = r.n - 1;
     const fresh = r.events.filter(e => enabledEv(e) && lastI - e.i < tf.fresh);
     for (const side of ["BUY", "SELL"]){
-      const best = fresh.filter(e => e.side === side).sort((a, b) => b.wp - a.wp || b.i - a.i)[0];
+      const best = fresh.filter(e => e.side === side).sort((a, b) => ENG[b.group].w - ENG[a.group].w || b.wp - a.wp || b.i - a.i)[0];
       if (!best) continue;
-      const s = tf.mult * (0.5 + best.wp / 100);
+      const s = tf.mult * (ENG[best.group].w / 3) * (0.5 + best.wp / 100);
       if (side === "BUY") buy += s; else sell += s;
       const ago = lastI - best.i;
       reasons.push({ tf: tf.label, side, chip: side, txt: `${best.label} ${ago === 0 ? "แท่งล่าสุด" : ago + " แท่งก่อน"} · ${best.wp}%` });
@@ -1066,7 +1079,7 @@ function computeVerdict(){
   let word = "WAIT";
   if (buy > 0 && sell === 0) word = "BUY";
   else if (sell > 0 && buy === 0) word = "SELL";
-  else if (buy > 0 && sell > 0 && Math.abs(score) >= 1) word = score > 0 ? "BUY" : "SELL";
+  else if (buy > 0 && sell > 0 && Math.abs(score) >= 0.6) word = score > 0 ? "BUY" : "SELL";
   const conflict = buy > 0 && sell > 0 && word === "WAIT";
   const plan = word === "WAIT" ? null : cands.filter(c => c.e.side === word).sort((a, b) => b.s - a.s)[0]?.e || null;
   return { score, word, reasons, plan, conflict };
@@ -1094,14 +1107,15 @@ function htfRow(live){
     const st = live[h], s = st.s, past = htfBlocks("SELL", st) || htfBlocks("BUY", st);
     const cls = past ? (s === 2 ? "buy" : "sell") : "neu";
     const what = s === 2 ? "ค้างขึ้น" : s === 1 ? "ค้างลง" : "ไม่ค้าง";
-    const note = s === 0 ? "" : past ? (s === 2 ? " · กัน P-SELL" : " · กัน P-BUY") : " · ยังไม่เลยครึ่ง";
+    const note = s === 0 ? "" : past ? (s === 2 ? " · กัน SELL" : " · กัน BUY") : " · ยังไม่เลยครึ่ง";
     return `<span class="chip ${cls}">${HTF.label[h]} ${HSYM(s)} ${what} · K ${isFinite(st.k) ? Math.round(st.k) : "–"}${note}</span>`; }).join(" ");
   return `<div class="row pbrow"><span class="k">TF ที่กัน</span><span class="v pbv">${chips}</span></div>`;
 }
 function pbCount(o){ return [o.zone, o.ext, o.rej].filter(Boolean).length; }
+function smChip(side, st, sig){ const [t, c] = stageTxt(st, side, sig); return `<span class="chip ${c}">${side === "BUY" ? "B" : "S"} · ${t}</span>`; }
 
 function renderCards(){
-  for (const id of ["15m", "1h", "4h"]){
+  for (const id of SIG_TF){
     const el = $("card-" + id), r = RES[id], tf = TFMAP[id];
     if (!r || !r.last){ el.innerHTML = `<div class="ph"><span class="tfname">${tf.label}</span></div><div class="last empty">กำลังโหลดราคา XAUUSD…</div>`; continue; }
     const L = r.last;
@@ -1110,7 +1124,7 @@ function renderCards(){
     const mc = L.msTrend === "BULLISH" ? "buy" : L.msTrend === "BEARISH" ? "sell" : "neu";
     const evs = r.events.filter(enabledEv);
     const le = evs[evs.length - 1];
-    let lastHtml = `<div class="last empty">ยังไม่มี P-BUY / P-SELL ในข้อมูลช่วงนี้</div>`;
+    let lastHtml = `<div class="last empty">ยังไม่มีสัญญาณในข้อมูลช่วงนี้</div>`;
     if (le){
       const ago = r.n - 1 - le.i, fresh = ago < tf.fresh;
       lastHtml = `<div class="last${fresh ? " fresh" : ""}">
@@ -1127,6 +1141,8 @@ function renderCards(){
         ${htfRow(HTF_LIVE[id])}
         ${pbRow("BUY", L.pbB, HTF_LIVE[id])}
         ${pbRow("SELL", L.pbS, HTF_LIVE[id])}
+        <div class="row"><span class="k">State Machine</span><span class="v">${smChip("BUY", L.bs, L.buySig)} ${smChip("SELL", L.ss, L.sellSig)}</span></div>
+        <div class="row"><span class="k">MS Gate</span><span class="v"><span class="chip ${L.gateBuy ? "buy" : "neu"}">BUY ${L.gateBuy ? "✓" : "✗"}</span> <span class="chip ${L.gateSell ? "sell" : "neu"}">SELL ${L.gateSell ? "✓" : "✗"}</span></span></div>
         <div class="row"><span class="k">MS Trend</span><span class="v"><span class="chip ${mc}">${L.msTrend}</span></span></div>
         <div class="row"><span class="k">RSI</span><span class="v num">${f2(L.rsi)}</span></div>
       </div>${lastHtml}`;
@@ -1135,14 +1151,14 @@ function renderCards(){
 
 function renderVerdict(){
   const box = $("vWord");
-  if (!RES["15m"] && !RES["1h"] && !RES["4h"]){
+  if (!SIG_TF.some(id => RES[id])){
     box.className = "vword v-wait"; box.innerHTML = `<b>—</b><span class="sub">กำลังโหลดราคา XAUUSD…</span>`;
     $("vNeedle").style.left = "50%"; $("vPlan").innerHTML = ""; $("vReasons").innerHTML = ""; $("mtf").innerHTML = ""; $("vTime").textContent = "—";
     return;
   }
   const v = computeVerdict();
   box.className = "vword " + (v.word === "BUY" ? "v-buy" : v.word === "SELL" ? "v-sell" : "v-wait");
-  box.innerHTML = `<b>${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}</b><span class="sub num">${v.conflict ? "P-BUY / P-SELL ขัดกัน" : "คะแนน " + (v.score >= 0 ? "+" : "") + v.score.toFixed(1)}</span>`;
+  box.innerHTML = `<b>${v.word === "WAIT" ? "รอจังหวะ" : v.word}</b><span class="sub num">${v.conflict ? "BUY / SELL ขัดกัน" : "คะแนน " + (v.score >= 0 ? "+" : "") + v.score.toFixed(1)}</span>`;
   $("vNeedle").style.left = (50 + Math.max(-1, Math.min(1, v.score / 4)) * 48) + "%";
   if (v.plan){
     const e = v.plan;
@@ -1152,25 +1168,27 @@ function renderVerdict(){
       <div class="c"><span class="lbl">TP1 1R</span><b style="color:var(--buy)">${f2(e.tp1)}</b></div>
       <div class="c"><span class="lbl">TP2 ${P.rr}R</span><b style="color:var(--buy)">${f2(e.tp2)}</b></div></div>`;
   } else {
-    const pend = ["4h", "1h", "15m"].map(id => RES[id] && RES[id].last ? `${TFMAP[id].label}: P-BUY ${pbCount(RES[id].last.pbB)}/3 · P-SELL ${pbCount(RES[id].last.pbS)}/3 เงื่อนไข` : "").filter(Boolean);
-    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มี P-BUY / P-SELL สดใน 3 TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
+    const pend = SIG_TF.slice().reverse().map(id => RES[id] && RES[id].last ? `${TFMAP[id].label}: BUY ${stageTxt(RES[id].last.bs, "BUY", false)[0]} · SELL ${stageTxt(RES[id].last.ss, "SELL", false)[0]} · P-BUY ${pbCount(RES[id].last.pbB)}/3 · P-SELL ${pbCount(RES[id].last.pbS)}/3` : "").filter(Boolean);
+    $("vPlan").innerHTML = `<div class="plan"><div class="h"><span>ยังไม่มีสัญญาณสดใน 4 TF</span></div><div class="c" style="grid-column:1/-1;font-size:12.5px;color:var(--mute)">${pend.map(esc).join("<br>")}</div></div>`;
   }
   $("vReasons").innerHTML = v.reasons.length ? v.reasons.map(r => `<li><span class="tfk">${r.tf}</span><span class="chip ${sideCls(r.side)}">${r.chip}</span><span>${esc(r.txt)}</span></li>`).join("") : `<li style="color:var(--mute)">—</li>`;
   $("vTime").textContent = "อัปเดต " + new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", hour:"2-digit", minute:"2-digit", second:"2-digit" }).format(new Date());
   const sym = s => s === 1 ? ["▼", "dn"] : s === 2 ? ["▲", "up"] : ["–", ""];
-  $("mtf").innerHTML = ["15m", "1h", "4h", "1d"].map(id => { const r = RES[id]; const [s, c] = sym(r ? r.stuck : 0); return `<span class="${c}">${TFMAP[id].label} ${s}</span>`; }).join("");
+  $("mtf").innerHTML = ["15m", "30m", "1h", "4h", "1d"].map(id => { const r = RES[id]; const [s, c] = sym(r ? r.stuck : 0); return `<span class="${c}">${TFMAP[id].label} ${s}</span>`; }).join("");
 }
 
 function renderLog(){
   const flt = $("logFilter").value;
   const all = [];
-  for (const id of ["15m", "1h", "4h"]) if (RES[id]) all.push(...RES[id].events.filter(enabledEv));
-  const rows = all.filter(e => flt === "all" || e.tf === flt).sort((a, b) => b.t - a.t || b.i - a.i).slice(0, 40);
+  const cut = Math.floor(Date.now() / 1000) - LOG_KEEP;   // สัญญาณที่แท่งปิดเกิน 24 ชม. ไม่แสดง (ลบอัตโนมัติ)
+  for (const id of SIG_TF) if (RES[id]) all.push(...RES[id].events.filter(e => enabledEv(e) && e.t + TFMAP[id].sec >= cut));
+  const rows = all.filter(e => flt === "all" || e.tf === flt).sort((a, b) => b.t - a.t || b.i - a.i || TFMAP[a.tf].sec - TFMAP[b.tf].sec);
+  $("logCount").textContent = `· ตอนนี้ ${rows.length} สัญญาณ`;
   $("logBody").innerHTML = rows.length ? rows.map(e => `<tr>
-    <td class="c-time">${fmtT(e.t)}</td><td class="c-tf">${TFMAP[e.tf].label}</td><td class="c-sig"><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span></td>
+    <td class="c-time">${fmtT(e.t + TFMAP[e.tf].sec)}</td><td class="c-tf">${TFMAP[e.tf].label}</td><td class="c-sig"><span class="chip ${sideCls(e.side)}">${esc(e.label)}</span></td>
     <td class="n" data-l="Entry">${f2(e.entry)}</td><td class="n" data-l="SL" style="color:var(--sell)">${f2(e.sl)}</td><td class="n" data-l="TP1">${f2(e.tp1)}</td><td class="n" data-l="TP2" style="color:var(--buy)">${f2(e.tp2)}</td>
     <td class="n c-wp" data-l="Win %">${e.wp}%</td></tr>`).join("")
-    : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณ</td></tr>`;
+    : `<tr><td colspan="8" style="color:var(--mute)">ยังไม่มีสัญญาณใน 24 ชม. ล่าสุด</td></tr>`;
 }
 
 function renderPrice(prevRaw){
@@ -1276,8 +1294,8 @@ function withTV(fn){
 }
 // มุมมองเดียว: กราฟ TradingView ตาม TF ที่เลือก
 function showTV(){ withTV(() => { if (tvTf === chartTf) return; tvTf = chartTf; tvWidget("tvChart", chartTf, false); }); }
-// 3 TF พร้อมกัน: TF15 / 1H / 4H
-function showTV3(){ withTV(() => { if (tv3Made) return; tv3Made = true; ["15m", "1h", "4h"].forEach(id => tvWidget("tv3_" + id, id, true)); }); }
+// 4 TF พร้อมกัน: TF15 / TF30 / 1H / 4H
+function showTV3(){ withTV(() => { if (tv3Made) return; tv3Made = true; SIG_TF.forEach(id => tvWidget("tv3_" + id, id, true)); }); }
 
 // ---------------- notifications ----------------
 let audioCtx = null;
@@ -1294,7 +1312,7 @@ function toast(msg){
 }
 const seen = store.get("seen", {});
 function checkNewSignals(first){
-  for (const id of ["15m", "1h", "4h"]){
+  for (const id of SIG_TF){
     const r = RES[id]; if (!r || !r.n) continue;
     const lastT = r.bars[r.n - 1].t;
     const news = r.events.filter(e => enabledEv(e) && e.t === lastT);
@@ -1322,7 +1340,7 @@ function compute(){
   P.rr = +S.rr || 2; P.requireMS = !!S.reqMS;
   computedOffset = OFFSET;
   for (const tf of TFS) if (DATA[tf.id]) RES[tf.id] = runKG(DATA[tf.id].map(shiftBar), tf.id);
-  HTF.use = { "1h": S.htfOn && S.htf["1h"], "4h": S.htfOn && S.htf["4h"], "1d": S.htfOn && S.htf["1d"] };
+  HTF.use = { "30m": S.htfOn && S.htf["30m"], "1h": S.htfOn && S.htf["1h"], "4h": S.htfOn && S.htf["4h"], "1d": S.htfOn && S.htf["1d"] };
   HTF_LIVE = applyHtfFilter(RES, DATA, Math.floor(Date.now() / 1000));
 }
 function renderAll(){ renderCards(); renderVerdict(); renderLog(); renderChart(); }
@@ -1474,7 +1492,7 @@ async function renderPushStatus(){
   if (!pushUrl()){ $("pushOwner").open = true; return set("warn", "ยังไม่ได้ตั้งเซิร์ฟเวอร์แจ้งเตือน — เจ้าของแอพวางลิงก์ Web app ด้านล่างก่อน", "none"); }
   if (Notification.permission === "denied") return set("warn", "เครื่องนี้บล็อกการแจ้งเตือนของแอพไว้ — เปิดอนุญาตในการตั้งค่าเบราว์เซอร์ / ตั้งค่าเครื่อง แล้วกลับมากดใหม่", "enable");
   const sub = await currentSub().catch(() => null);
-  if (sub && pushOn() && Notification.permission === "granted") return set("on", "<b>เปิดอยู่</b> — เครื่องนี้จะได้รับแจ้งเตือน P-BUY / P-SELL แม้ปิดแอพ", "manage");
+  if (sub && pushOn() && Notification.permission === "granted") return set("on", "<b>เปิดอยู่</b> — เครื่องนี้จะได้รับแจ้งเตือนสัญญาณแม้ปิดแอพ", "manage");
   if (pushOn()) store.set("pushOn", false), $("btnNotify").classList.remove("on"), $("btnNotify").textContent = "เปิดแจ้งเตือน";
   set("off", "ยังไม่เปิด — กดปุ่มด้านล่าง แล้วกด <b>อนุญาต</b> เมื่อเครื่องถาม", "enable");
 }
@@ -1551,10 +1569,10 @@ function signalSummary(){
   const now = new Intl.DateTimeFormat("th-TH", { timeZone:"Asia/Bangkok", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date());
   lines.push(`KG Signal XAUUSD · ${now}`);
   const px = $("price").textContent; if (px && px !== "—") lines.push(`ราคา XAUUSD ${px}`);
-  if (RES["15m"] || RES["1h"] || RES["4h"]){
+  if (SIG_TF.some(id => RES[id])){
     const v = computeVerdict();
-    lines.push(`สรุป Pullback 3 TF: ${v.word === "WAIT" ? "รอจังหวะ" : "P-" + v.word}`);
-    for (const id of ["15m", "1h", "4h"]){
+    lines.push(`สรุปสัญญาณ 4 TF: ${v.word === "WAIT" ? "รอจังหวะ" : v.word}`);
+    for (const id of SIG_TF){
       const r = RES[id], tf = TFMAP[id]; if (!r) continue;
       const e = r.events.filter(enabledEv).filter(x => r.n - 1 - x.i < tf.fresh).slice(-1)[0];
       lines.push(e ? `${tf.label}: ${e.label} ${e.wp}% · Entry ${f2(e.entry)} · SL ${f2(e.sl)} · TP ${f2(e.tp2)}` : `${tf.label}: ยังไม่มีสัญญาณสด`);
@@ -1565,7 +1583,7 @@ function signalSummary(){
 }
 function buildShare(){
   const url = appUrl();
-  const text = $("shareWithSignal").checked ? signalSummary() : "KG Signal XAUUSD — สัญญาณ P-BUY / P-SELL ทองคำ TF15 / 1H / 4H เรียลไทม์\nเทรดง่ายๆ เด็กอนุบาลก็เทรดได้";
+  const text = $("shareWithSignal").checked ? signalSummary() : "KG Signal XAUUSD — สัญญาณ KG Signal v7.8 ทองคำ TF15 / TF30 / 1H / 4H เรียลไทม์\nเทรดง่ายๆ เด็กอนุบาลก็เทรดได้";
   $("shareText").value = onWeb ? text + "\n" + url : text;
   $("shareUrl").value = url;
   $("shareWarn").hidden = onWeb;
