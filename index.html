@@ -67,6 +67,17 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-be
 .pchg{font:500 13px/1.2 var(--f-mono)}
 .price.up{color:var(--buy)} .price.dn{color:var(--sell)} .price{transition:color .3s}
 .meta{display:flex;flex-direction:column;gap:4px;align-items:flex-end;font-size:12px;color:var(--mute)}
+/* ราคาสดจาก TradingView (Single Quote widget) — ถ้าโหลดไม่ได้ จะแสดงราคาของแอพแบบเดิม */
+.pxbox{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tvq{display:none;width:320px;max-width:calc(100vw - 32px);min-height:72px;overflow:hidden}
+.tvq iframe{display:block;width:100%!important;color-scheme:normal;background:transparent}
+.own-lbl{display:none}
+.quote.tvq-on .tvq{display:block}
+.quote.tvq-on .pxown{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.quote.tvq-on #srcLbl{display:none}
+.quote.tvq-on .own-lbl{display:inline}
+.quote.tvq-on .pxown .price{font-size:15px;letter-spacing:0}
+.quote.tvq-on .pxown .pchg{font-size:11.5px}
 .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--mute);background:var(--panel)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
 .dot.live{background:var(--buy);box-shadow:0 0 0 3px rgba(47,191,113,.2)}
@@ -255,10 +266,14 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
     <span class="tag">เทรดง่ายๆ เด็กอนุบาลก็เทรดได้ · วิเคราะห์ TF15 / TF30 / 1H / 4H อัตโนมัติ</span>
   </div>
   <div class="quote">
-    <div>
-      <div class="lbl" id="srcLbl">XAUUSD · เรียลไทม์</div>
-      <div class="price" id="price">—</div>
-      <div class="pchg" id="pchg">&nbsp;</div>
+    <div class="pxbox">
+      <div class="tvq tradingview-widget-container" id="tvQuote" aria-label="ราคาสดจาก TradingView"></div>
+      <div class="pxown" id="pxOwn">
+        <div class="lbl" id="srcLbl">XAUUSD · เรียลไทม์</div>
+        <span class="lbl own-lbl">ราคาที่ใช้คำนวณสัญญาณ</span>
+        <div class="price" id="price">—</div>
+        <div class="pchg" id="pchg">&nbsp;</div>
+      </div>
     </div>
     <div class="meta">
       <span class="pill"><span class="dot" id="liveDot"></span><span id="status">กำลังโหลดข้อมูล…</span></span>
@@ -383,7 +398,7 @@ footer{color:var(--mute);font-size:12px;display:flex;flex-wrap:wrap;justify-cont
         <span class="hint">ตอนนี้แท่ง 4H เปิด <b id="alignNow">—</b> (เวลาไทย) · ปรับตามเวลาฤดูร้อนสหรัฐให้อัตโนมัติ</span>
         <label for="optTvSym">สัญลักษณ์กราฟ TradingView</label>
         <input type="text" id="optTvSym" placeholder="TVC:GOLD" autocomplete="off" spellcheck="false">
-        <span class="hint">ใช้กับแท็บ TradingView และ 4 TF เท่านั้น ไม่มีผลกับการคำนวณสัญญาณ · พิมพ์แบบที่ใช้ใน TradingView เช่น TVC:GOLD หรือ XAUUSD ของโบรกที่คุณใช้</span>
+        <span class="hint">ใช้กับราคาสดบนหัวแอพ, แท็บ TradingView และ 4 TF เท่านั้น ไม่มีผลกับการคำนวณสัญญาณ · พิมพ์แบบที่ใช้ใน TradingView เช่น TVC:GOLD หรือ XAUUSD ของโบรกที่คุณใช้</span>
       </div>
     </div>
     <div class="field">
@@ -1424,7 +1439,28 @@ function applySettingsUI(){
   $("optHtfOn").checked = !!S.htfOn;
   document.querySelectorAll("[data-htf]").forEach(c => { c.checked = !!S.htf[c.dataset.htf]; c.disabled = !S.htfOn; });
 }
+// ราคาสดบนหัวแอพ = ราคาเดียวกับกราฟ TradingView (สัญลักษณ์ตามตั้งค่า)
+let tvqSym = null;
+function mountTvQuote(){
+  if (tvqSym === S.tvSym) return;
+  tvqSym = S.tvSym;
+  const box = $("tvQuote"), q = box.closest(".quote");
+  q.classList.remove("tvq-on"); box.innerHTML = "";
+  const inner = document.createElement("div"); inner.className = "tradingview-widget-container__widget"; box.appendChild(inner);
+  const mo = new MutationObserver(() => {
+    const f = box.querySelector("iframe"); if (!f) return;
+    mo.disconnect();
+    f.addEventListener("load", () => { if (tvqSym === S.tvSym) q.classList.add("tvq-on"); }, { once: true });
+  });
+  mo.observe(box, { childList: true, subtree: true });
+  const s = document.createElement("script");
+  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js"; s.async = true;
+  s.text = JSON.stringify({ symbol: S.tvSym, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th_TH" });
+  s.onerror = () => { mo.disconnect(); q.classList.remove("tvq-on"); };
+  box.appendChild(s);
+}
 function applyTvSym(){
+  mountTvQuote();
   $("tvSymLbl").textContent = S.tvSym;
   $("tvLink").href = "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(S.tvSym);
 }
