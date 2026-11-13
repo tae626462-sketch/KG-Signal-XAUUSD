@@ -16,7 +16,7 @@
 <script>
   // ===== Google Analytics 4 =====
   // วาง Measurement ID ของคุณ (รูปแบบ G-XXXXXXXXXX) ระหว่างเครื่องหมายคำพูดด้านล่าง แล้วอัปโหลดไฟล์นี้ขึ้น GitHub Pages
-  window.GA_ID = "";
+  window.GA_ID = "G-N9DB1VGCT6";
   (function(){
     if (!/^G-[A-Z0-9]+$/.test(window.GA_ID) || !/^https?:$/.test(location.protocol) || /^(localhost|127\.)/.test(location.hostname)) return;
     var s = document.createElement("script"); s.async = true;
@@ -26,6 +26,7 @@
     window.gtag = function(){ dataLayer.push(arguments); };
     gtag("js", new Date());
     gtag("config", window.GA_ID, {
+      app_name: "KG Signal XAUUSD",
       app_mode: (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) ? "installed" : "browser"
     });
   })();
